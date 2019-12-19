@@ -1,4 +1,6 @@
-module.exports = function(RED) {
+const channel_RIDESHARE = 1 // should read from synerex_proto .
+
+module.exports = function (RED) {
   'use strict'
   function FleetNode(config) {
     RED.nodes.createNode(this, config)

@@ -5,12 +5,12 @@
       <input class="input-append-left" type="text" id="node-config-input-nickname" placeholder="Nickname" >
   </div>
   <div class="form-row">
-      <label for="node-config-input-bosh"><i class="fa fa-user"></i>Bosh Service</label>
-      <input type="text" id="node-config-input-bosh" placeholder="http://sox.ht.sfc.keio.ac.jp:5280/http-bind/">
+      <label for="node-config-input-nodeserv"><i class="fa fa-user"></i>Synered node server address</label>
+      <input type="text" id="node-config-input-nodeserv" placeholder="127.0.0.1:9990">
   </div>
   <div class="form-row">
-      <label for="node-config-input-xmpp"><i class="fa fa-user"></i>XMPP Server</label>
-      <input type="text" id="node-config-input-xmpp" placeholder="sox.ht.sfc.keio.ac.jp">
+      <label for="node-config-input-hostname"><i class="fa fa-user"></i>Hostbname</label>
+      <input type="text" id="node-config-input-hostname" placeholder="Node-RED">
   </div>
 
   <div class="form-row">
@@ -24,20 +24,15 @@
 </script>
 
 <script type="text/javascript">
-  var DEFAULT_BOSH = "http://sox.ht.sfc.keio.ac.jp:5280/http-bind/";
-  var DEFAULT_XMPP = "sox.ht.sfc.keio.ac.jp";
-  var DEFAULT_DEVICE = "fujisawaGeoTweets"
+  var DEFAULT_NODESERV = "127.0.0.1:9990";
+  var DEFAULT_HOSTNAME = "Node-RED";
 
-  /*
-  * Node for Sox Sensor Credentials
-  */
-  //TODO:
   RED.nodes.registerType('synerex-credentials', {
     category: 'config',
     defaults: {
       nickname: { value: "Default", required: true },
-      bosh: { value: DEFAULT_BOSH, required: true },
-      xmpp: { value: DEFAULT_XMPP, required: true }
+      nodeserv: { value: DEFAULT_NODESERV, required: true },
+      hostname: { value: DEFAULT_HOSTNAME, required: true }
     },
     credentials: {
       jid: { type: "text", required: false },
