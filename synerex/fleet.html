@@ -3,7 +3,8 @@
     category: 'Synerex',
     color: '#FFFFFF',
     defaults: {
-      name: {value:""}
+      name: { value: "fleet" },
+      login: { type: "synerex-credentials" },
     },
     inputs: 1,
     outputs: 1,
@@ -23,8 +24,13 @@
 
 <script type="text/x-red" data-template-name="Fleet">
   <div class="form-row">
-      <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-      <input type="text" id="node-input-name" placeholder="Name">
+    <label for="node-input-login"><i class="fa fa-user"></i> Log in as</label>
+    <input type="text" id="node-input-login">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
   </div>
 </script>
 
