@@ -1,7 +1,3 @@
-const api_path = __dirname + '/synerex_api/synerex.proto'
-const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
-const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
-
 module.exports = function (RED) {
   'use strict'
 

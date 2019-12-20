@@ -1,3 +1,5 @@
+const util = require('../sxutil.js')
+
 const channel_RIDESHARE = 1 // should read from synerex_proto .
 
 module.exports = function (RED) {
