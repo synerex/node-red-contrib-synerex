@@ -1,20 +1,17 @@
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
-const program = require('commander')
-
+// const program = require('commander')
 const Protobuf = require('protobufjs')
-
 const channel_RIDESHARE = 1 // should read from synerex_proto .
-
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
 
-program
-  .version('1.0.0')
-  .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-  .option('-n, --hostname [name]', 'Hostname for provider', 'NodeJS_Sample')
-  .parse(process.argv)
+// program
+//   .version('1.0.0')
+//   .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
+//   .option('-n, --hostname [name]', 'Hostname for provider', 'NodeJS_Sample')
+//   .parse(process.argv)
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
   keepCase: true,
@@ -51,7 +48,7 @@ module.exports = class Sxutil {
 
   sendNotifySupply(client, node_id) {
     // we need to encode protocol
-    flt = Fleet.create({
+    var flt = Fleet.create({
       coord: { lat: 34.85, lon: 137.15 },
       vehicle_id: 1,
       angle: 160,
@@ -61,7 +58,7 @@ module.exports = class Sxutil {
     console.log('Send Fleet Info', flt)
 
     var buffer = Fleet.encode(flt).finish()
-    sp = {
+    var sp = {
       id: 0, // should use snowflake id..
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
@@ -91,7 +88,7 @@ module.exports = class Sxutil {
     call.on('data', function (supply) {
       console.log('receive Supply:', supply)
       //        console.log("CDATA:",supply.cdata.entity);
-      flt = Fleet.decode(supply.cdata.entity)
+      var flt = Fleet.decode(supply.cdata.entity)
       console.log(flt)
     })
     call.on('status', function (st) {
@@ -110,11 +107,11 @@ module.exports = class Sxutil {
       grpc.credentials.createInsecure()
     )
 
-    sendNotifySupply(sClient, resp.node_id)
+    this.sendNotifySupply(sClient, resp.node_id)
 
     console.log('Subscribe RIDE_SHARE Channel')
 
-    subscribeDemand(sClient, resp.node_id)
+    this.subscribeDemand(sClient, resp.node_id)
   }
 
   startKeepAlive(nClient, resp) {
