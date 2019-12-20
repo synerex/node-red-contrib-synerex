@@ -1,0 +1,9 @@
+[submodule "synerex_proto"]
+	path = synerex_proto
+	url = git@github.com:synerex/synerex_proto.git
+[submodule "synerex_nodeapi"]
+	path = synerex_nodeapi
+	url = git@github.com:synerex/synerex_nodeapi.git
+[submodule "synerex_api"]
+	path = synerex_api
+	url = git@github.com:synerex/synerex_api.git
