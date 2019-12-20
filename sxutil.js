@@ -3,13 +3,8 @@ const protoLoader = require('@grpc/proto-loader')
 const program = require('commander')
 
 const Protobuf = require('protobufjs')
-// const descriptor = require('protobufjs/ext/descriptor');
 
 const channel_RIDESHARE = 1 // should read from synerex_proto .
-
-// const api_path = '../synerex_api/synerex.proto'
-// const nodeapi_path = '../synerex_nodeapi/nodeapi.proto'
-// const fleet_path = '../synerex_proto/fleet/fleet.proto'
 
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
@@ -30,7 +25,6 @@ const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
 })
 
 const nodeApiProto = grpc.loadPackageDefinition(nodeApiDefinition)
-const nodeapi = nodeApiProto.nodeapi
 
 const synerexApiDefinition = protoLoader.loadSync(api_path, {
   keepCase: true,
@@ -41,99 +35,105 @@ const synerexApiDefinition = protoLoader.loadSync(api_path, {
 })
 
 const synerexApiProto = grpc.loadPackageDefinition(synerexApiDefinition)
-const synerexApi = synerexApiProto.api
+// const synerexApi = synerexApiProto.api
 
 const fleetRoot = Protobuf.loadSync(fleet_path)
 
 //console.log("Fleet",fleetRoot.lookup("Fleet"))
 
 const Fleet = fleetRoot.lookup('Fleet')
-/*
-function sendNotifySupply(client, node_id) {
-  // we need to encode protocol
-  flt = Fleet.create({
-    coord: { lat: 34.85, lon: 137.15 },
-    vehicle_id: 1,
-    angle: 160,
-    speed: 280
-  })
 
-  console.log('Send Fleet Info', flt)
-
-  var buffer = Fleet.encode(flt).finish()
-  sp = {
-    id: 0, // should use snowflake id..
-    sendr_id: node_id,
-    channel_type: channel_RIDESHARE,
-    supply_name: 'RS Notify',
-    arg_json: '',
-    cdata: { entity: buffer }
+module.exports = class Sxutil {
+  constructor() {
+    this.nodeapi = nodeApiProto.nodeapi
+    this.synerexApi = synerexApiProto.api
   }
 
-  client.NotifySupply(sp, (err, resp) => {
-    if (!err) {
-      console.log('Sent OK', resp)
-    } else {
-      console.log('error', err)
+  sendNotifySupply(client, node_id) {
+    // we need to encode protocol
+    flt = Fleet.create({
+      coord: { lat: 34.85, lon: 137.15 },
+      vehicle_id: 1,
+      angle: 160,
+      speed: 280
+    })
+
+    console.log('Send Fleet Info', flt)
+
+    var buffer = Fleet.encode(flt).finish()
+    sp = {
+      id: 0, // should use snowflake id..
+      sendr_id: node_id,
+      channel_type: channel_RIDESHARE,
+      supply_name: 'RS Notify',
+      arg_json: '',
+      cdata: { entity: buffer }
     }
-  })
-}
 
-function subscribeDemand(client, node_id) {
-  var ch = {
-    client_id: node_id,
-    channel_type: channel_RIDESHARE,
-    arg_json: 'Test...'
-  }
-
-  var call = client.SubscribeSupply(ch)
-
-  call.on('data', function (supply) {
-    console.log('receive Supply:', supply)
-    //        console.log("CDATA:",supply.cdata.entity);
-    flt = Fleet.decode(supply.cdata.entity)
-    console.log(flt)
-  })
-  call.on('status', function (st) {
-    console.log('Subscribe Status', st)
-  })
-
-  call.on('end', function () {
-    console.log('Subscribe Done!')
-  })
-}
-
-function connectSynerexServer(resp) {
-  console.log('Connecting synerex Server ', resp.server_info)
-  const sClient = new synerexApi.Synerex(
-    resp.server_info,
-    grpc.credentials.createInsecure()
-  )
-
-  sendNotifySupply(sClient, resp.node_id)
-
-  console.log('Subscribe RIDE_SHARE Channel')
-
-  subscribeDemand(sClient, resp.node_id)
-}
-
-function startKeepAlive(nClient, resp) {
-  global.update = 0
-  setInterval(() => {
-    updt = {
-      node_id: resp.node_id,
-      secret: resp.secret,
-      update_count: global.udpate++,
-      node_status: 0,
-      node_arg: 'OK'
-    }
-    nClient.KeepAlive(updt, (err, resp) => {
+    client.NotifySupply(sp, (err, resp) => {
       if (!err) {
-        console.log('KeepAlive OK', resp)
+        console.log('Sent OK', resp)
       } else {
-        console.log('Error!', err)
+        console.log('error', err)
       }
     })
-  }, resp.keepalive_duration * 1000)
+  }
+
+  subscribeDemand(client, node_id) {
+    var ch = {
+      client_id: node_id,
+      channel_type: channel_RIDESHARE,
+      arg_json: 'Test...'
+    }
+
+    var call = client.SubscribeSupply(ch)
+
+    call.on('data', function (supply) {
+      console.log('receive Supply:', supply)
+      //        console.log("CDATA:",supply.cdata.entity);
+      flt = Fleet.decode(supply.cdata.entity)
+      console.log(flt)
+    })
+    call.on('status', function (st) {
+      console.log('Subscribe Status', st)
+    })
+
+    call.on('end', function () {
+      console.log('Subscribe Done!')
+    })
+  }
+
+  connectSynerexServer(resp) {
+    console.log('Connecting synerex Server ', resp.server_info)
+    const sClient = new this.synerexApi.Synerex(
+      resp.server_info,
+      grpc.credentials.createInsecure()
+    )
+
+    sendNotifySupply(sClient, resp.node_id)
+
+    console.log('Subscribe RIDE_SHARE Channel')
+
+    subscribeDemand(sClient, resp.node_id)
+  }
+
+  startKeepAlive(nClient, resp) {
+    global.update = 0
+    setInterval(() => {
+      updt = {
+        node_id: resp.node_id,
+        secret: resp.secret,
+        update_count: global.udpate++,
+        node_status: 0,
+        node_arg: 'OK'
+      }
+      nClient.KeepAlive(updt, (err, resp) => {
+        if (!err) {
+          console.log('KeepAlive OK', resp)
+        } else {
+          console.log('Error!', err)
+        }
+      })
+    }, resp.keepalive_duration * 1000)
+  }
 }
-*/
