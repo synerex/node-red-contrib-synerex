@@ -117,7 +117,7 @@ module.exports = class Sxutil {
   startKeepAlive(nClient, resp) {
     global.update = 0
     setInterval(() => {
-      updt = {
+      var updt = {
         node_id: resp.node_id,
         secret: resp.secret,
         update_count: global.udpate++,

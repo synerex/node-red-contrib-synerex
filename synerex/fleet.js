@@ -22,18 +22,13 @@ module.exports = function (RED) {
   function FleetNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
-    console.log('hoo!!!fleet!')
     var util = new Sxutil()
 
-    console.log('Connecting nodeserv ', program.nodesrv)
     const nodesvClient = new util.nodeapi.Node(
       program.nodesrv,
       grpc.credentials.createInsecure()
     )
-    console.log(nodesvClient)
-    console.log('kita?')
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
-    console.log('NodeType', NodeType.values.PROVIDER)
 
     nodesvClient.RegisterNode(
       {
