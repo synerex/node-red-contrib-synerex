@@ -30,29 +30,37 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    nodesvClient.RegisterNode(
-      {
-        node_name: program.hostname,
-        node_type: NodeType.values.PROVIDER,
-        channelTypes: [channel_RIDESHARE] // RIDE_SHARE
-      },
-      (err, resp) => {
-        if (!err) {
-          console.log('NodeServer connect success!')
-          console.log(resp)
-          console.log('Node ID is ', resp.node_id)
-          console.log('Server Info is ', resp.server_info)
-          console.log('KeepAlive is ', resp.keepalive_duration)
+    node.on('input', function (msg) {
+      console.log('on here!')
 
-          util.connectSynerexServer(resp)
+      // connecting server
+      nodesvClient.RegisterNode(
+        {
+          node_name: program.hostname,
+          node_type: NodeType.values.PROVIDER,
+          channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+        },
+        (err, resp) => {
+          if (!err) {
+            console.log('NodeServer connect success!')
+            console.log(resp)
+            console.log('Node ID is ', resp.node_id)
+            console.log('Server Info is ', resp.server_info)
+            console.log('KeepAlive is ', resp.keepalive_duration)
 
-          util.startKeepAlive(nodesvClient, resp)
-        } else {
-          console.log('Error connecting NodeServ.')
-          console.log(err)
+            util.connectSynerexServer(resp)
+
+            util.startKeepAlive(nodesvClient, resp)
+          } else {
+            console.log('Error connecting NodeServ.')
+            console.log(err)
+          }
         }
-      }
-    )
+      )
+    })
+    node.on('close', function () {
+      console.log('close')
+    })
   }
   RED.nodes.registerType('Fleet', FleetNode)
 }
