@@ -1,7 +1,7 @@
 const Sxutil = require('../sxutil.js')
 
 const grpc = require('grpc')
-const protoLoader = require('@grpc/proto-loader')
+// const protoLoader = require('@grpc/proto-loader')
 const program = require('commander')
 const Protobuf = require('protobufjs')
 
