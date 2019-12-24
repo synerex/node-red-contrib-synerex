@@ -107,10 +107,11 @@ module.exports = class Sxutil {
       grpc.credentials.createInsecure()
     )
 
+    // send fleet data
     this.sendNotifySupply(sClient, resp.node_id)
 
     console.log('Subscribe RIDE_SHARE Channel')
-
+    // subscribe
     this.subscribeDemand(sClient, resp.node_id)
   }
 
