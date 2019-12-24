@@ -1,0 +1,47 @@
+<!-- Node for SOX Credentals -->
+<script type="text/x-red" data-template-name="synerex-credentials">
+  <div class="form-row node-input-broker">
+      <label for="node-config-input-nickname"><i class="fa fa-globe"></i> Config Name</label>
+      <input class="input-append-left" type="text" id="node-config-input-nickname" placeholder="Nickname" >
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-nodeserv"><i class="fa fa-user"></i>Node server</label>
+      <input type="text" id="node-config-input-nodeserv" placeholder="127.0.0.1:9990">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-hostname"><i class="fa fa-user"></i>Hostbname</label>
+      <input type="text" id="node-config-input-hostname" placeholder="Node-RED">
+  </div>
+<!-- if you use id/pass, delete comment out
+  <div class="form-row">
+      <label for="node-config-input-jid"><i class="fa fa-user"></i> Username</label>
+      <input type="text" id="node-config-input-jid">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-password"><i class="fa fa-lock"></i> Password</label>
+      <input type="password" id="node-config-input-password">
+  </div>
+-->
+</script>
+
+<script type="text/javascript">
+  var DEFAULT_NODESERV = "127.0.0.1:9990";
+  var DEFAULT_HOSTNAME = "Node-RED";
+
+  RED.nodes.registerType('synerex-credentials', {
+    category: 'config',
+    defaults: {
+      nickname: { value: "Default", required: true },
+      nodeserv: { value: DEFAULT_NODESERV, required: true },
+      hostname: { value: DEFAULT_HOSTNAME, required: true }
+    },
+    // if you use id/pass, delete comment out
+    // credentials: {
+    //   jid: { type: "text", required: false },
+    //   password: { type: "password", required: false },
+    // },
+    label: function () {
+      return this.nickname;
+    }
+  });
+</script>
