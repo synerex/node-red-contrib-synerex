@@ -6,6 +6,7 @@ const channel_RIDESHARE = 1 // should read from synerex_proto .
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
+const json_path = __dirname + '/proto_json/json.proto'
 
 // program
 //   .version('1.0.0')
@@ -35,10 +36,11 @@ const synerexApiProto = grpc.loadPackageDefinition(synerexApiDefinition)
 // const synerexApi = synerexApiProto.api
 
 const fleetRoot = Protobuf.loadSync(fleet_path)
-
-//console.log("Fleet",fleetRoot.lookup("Fleet"))
-
 const Fleet = fleetRoot.lookup('Fleet')
+
+const jsonRoot = Protobuf.loadSync(json_path)
+const JsonRecord = jsonRoot.lookup('JsonRecord')
+console.log('Json prot ...', JsonRecord)
 
 module.exports = class Sxutil {
   constructor() {
@@ -113,6 +115,44 @@ module.exports = class Sxutil {
     console.log('Subscribe RIDE_SHARE Channel')
     // subscribe
     this.subscribeDemand(sClient, resp.node_id)
+  }
+
+  synerexServerClient(resp) {
+    console.log('Connecting synerex Server ', resp.server_info)
+    const sClient = new this.synerexApi.Synerex(
+      resp.server_info,
+      grpc.credentials.createInsecure()
+    )
+    return sClient
+  }
+
+  sendJsonNotifySupply(json, client, node_id) {
+    var jsonrc = JsonRecord.create({
+      json: json
+    })
+
+    console.log('Send json Info', jsonrc)
+
+    var buffer = JsonRecord.encode(jsonrc).finish()
+
+    console.log(buffer)
+
+    var sp = {
+      id: 0, // should use snowflake id..
+      sendr_id: node_id,
+      channel_type: channel_RIDESHARE,
+      supply_name: 'RS Notify',
+      arg_json: '',
+      cdata: { entity: buffer }
+    }
+
+    client.NotifySupply(sp, (err, resp) => {
+      if (!err) {
+        console.log('Sent OK', resp)
+      } else {
+        console.log('error', err)
+      }
+    })
   }
 
   startKeepAlive(nClient, resp) {

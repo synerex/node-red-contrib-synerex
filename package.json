@@ -33,7 +33,9 @@
   "node-red": {
     "nodes": {
       "sxutil": "./synerex/synerex.js",
-      "fleet": "./synerex/fleet.js"
+      "fleet": "./synerex/fleet.js",
+      "notify-supply": "./synerex/notify-supply.js",
+      "notify-demand": "./synerex/notify-demand.js"
     }
   },
   "author": "github_id:kuetsuhara",
