@@ -2,6 +2,7 @@ const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 // const program = require('commander')
 const Protobuf = require('protobufjs')
+const { UniqueID } = require('nodejs-snowflake')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
@@ -58,10 +59,11 @@ module.exports = class Sxutil {
     })
 
     console.log('Send Fleet Info', flt)
+    const uid = new UniqueID()
 
     var buffer = Fleet.encode(flt).finish()
     var sp = {
-      id: 0, // should use snowflake id..
+      id: uid.getUniqueID(), // should use snowflake id..
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
       supply_name: 'RS Notify',
@@ -114,7 +116,7 @@ module.exports = class Sxutil {
 
     console.log('Subscribe RIDE_SHARE Channel')
     // subscribe
-    this.subscribeDemand(sClient, resp.node_id)
+    // this.subscribeDemand(sClient, resp.node_id)
   }
 
   synerexServerClient(resp) {
@@ -135,10 +137,9 @@ module.exports = class Sxutil {
 
     var buffer = JsonRecord.encode(jsonrc).finish()
 
-    console.log(buffer)
-
+    const uid = new UniqueID()
     var sp = {
-      id: 0, // should use snowflake id..
+      id: uid.getUniqueID(),
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
       supply_name: 'RS Notify',

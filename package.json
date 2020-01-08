@@ -9,6 +9,7 @@
     "@grpc/proto-loader": "^0.5.3",
     "commander": "^4.0.1",
     "grpc": "^1.24.2",
+    "nodejs-snowflake": "^1.4.1",
     "save": "^2.4.0"
   },
   "devDependencies": {
@@ -17,10 +18,10 @@
     "eslint": "^6.6.0",
     "eslint-config-prettier": "^6.6.0",
     "eslint-plugin-prettier": "^3.1.1",
-    "node-red": "^1.0.2",
-    "node-red-node-test-helper": "^0.2.3",
     "prettier": "^1.19.1",
-    "should": "^13.2.3"
+    "should": "^13.2.3",
+    "node-red": "^1.0.2",
+    "node-red-node-test-helper": "^0.2.3"
   },
   "repository": {
     "type": "git",

@@ -48,12 +48,9 @@ module.exports = function (RED) {
             console.log('KeepAlive is ', resp.keepalive_duration)
 
             const client = util.synerexServerClient(resp)
-            console.log('==================')
-            console.log(client)
-            // util.connectSynerexServer(resp)
-            util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
 
-            // util.startKeepAlive(nodesvClient, resp)
+            util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
+            util.startKeepAlive(nodesvClient, resp)
           } else {
             console.log('Error connecting NodeServ.')
             console.log(err)
