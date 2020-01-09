@@ -38,7 +38,9 @@
       "notify-supply": "./synerex/notify-supply.js",
       "notify-demand": "./synerex/notify-demand.js",
       "subscribe-supply": "./synerex/subscribe-supply.js",
-      "subscribe-demand": "./synerex/subscribe-demand.js"
+      "subscribe-demand": "./synerex/subscribe-demand.js",
+      "fleet-notify-supply": "./synerex/fleet-notify-supply.js",
+      "fleet-subscribe-demand": "./synerex/fleet-subscribe-demand.js"
     }
   },
   "author": "github_id:kuetsuhara",
