@@ -47,7 +47,9 @@ module.exports = function (RED) {
             console.log('Server Info is ', resp.server_info)
             console.log('KeepAlive is ', resp.keepalive_duration)
 
-            // const client = util.synerexServerClient(resp)
+            const client = util.synerexServerClient(resp)
+
+            util.jsonSubscribeDemand(client, resp.node_id)
 
             // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
             // util.startKeepAlive(nodesvClient, resp)

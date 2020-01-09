@@ -156,6 +156,30 @@ module.exports = class Sxutil {
     })
   }
 
+  jsonSubscribeDemand(client, node_id) {
+    var ch = {
+      client_id: node_id,
+      channel_type: channel_RIDESHARE,
+      arg_json: 'Test...'
+    }
+
+    var call = client.SubscribeSupply(ch)
+
+    call.on('data', function (supply) {
+      console.log('receive Supply:', supply)
+      //        console.log("CDATA:",supply.cdata.entity);
+      var jsonRc = JsonRecord.decode(supply.cdata.entity)
+      console.log(jsonRc)
+    })
+    call.on('status', function (st) {
+      console.log('Subscribe Status', st)
+    })
+
+    call.on('end', function () {
+      console.log('Subscribe Done!')
+    })
+  }
+
   startKeepAlive(nClient, resp) {
     global.update = 0
     setInterval(() => {
