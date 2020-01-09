@@ -23,8 +23,21 @@ module.exports = function (RED) {
     var node = this
     var util = new Sxutil()
 
+    // Get credental
+    this.login = RED.nodes.getNode(config.login) // Retrieve the config node
+    if (!this.login) {
+      console.log('not login ??')
+      node.status({
+        fill: 'red',
+        shape: 'dot',
+        text: 'Credential error'
+      })
+      node.error('No credentials specified')
+      return
+    }
+
     const nodesvClient = new util.nodeapi.Node(
-      program.nodesrv,
+      this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
@@ -35,7 +48,7 @@ module.exports = function (RED) {
       // connecting server
       nodesvClient.RegisterNode(
         {
-          node_name: program.hostname,
+          node_name: this.login.hostname,
           node_type: NodeType.values.PROVIDER,
           channelTypes: [channel_RIDESHARE] // RIDE_SHARE
         },
