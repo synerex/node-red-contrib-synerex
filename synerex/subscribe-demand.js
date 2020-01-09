@@ -29,37 +29,66 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    node.on('input', function (msg) {
-      console.log('on here!')
+    node.status({ fill: 'green', shape: 'dot', text: 'request...' })
+    nodesvClient.RegisterNode(
+      {
+        node_name: program.hostname,
+        node_type: NodeType.values.PROVIDER,
+        channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+      },
+      (err, resp) => {
+        if (!err) {
+          node.status({ fill: 'green', shape: 'dot', text: 'connected' })
+          console.log('NodeServer connect success!')
+          console.log(resp)
+          console.log('Node ID is ', resp.node_id)
+          console.log('Server Info is ', resp.server_info)
+          console.log('KeepAlive is ', resp.keepalive_duration)
 
-      // connecting server
-      nodesvClient.RegisterNode(
-        {
-          node_name: program.hostname,
-          node_type: NodeType.values.PROVIDER,
-          channelTypes: [channel_RIDESHARE] // RIDE_SHARE
-        },
-        (err, resp) => {
-          if (!err) {
-            console.log('NodeServer connect success!')
-            console.log(resp)
-            console.log('Node ID is ', resp.node_id)
-            console.log('Server Info is ', resp.server_info)
-            console.log('KeepAlive is ', resp.keepalive_duration)
+          const client = util.synerexServerClient(resp)
 
-            const client = util.synerexServerClient(resp)
+          util.jsonSubscribeDemand(client, resp.node_id)
 
-            util.jsonSubscribeDemand(client, resp.node_id)
-
-            // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
-            // util.startKeepAlive(nodesvClient, resp)
-          } else {
-            console.log('Error connecting NodeServ.')
-            console.log(err)
-          }
+          // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
+          // util.startKeepAlive(nodesvClient, resp)
+        } else {
+          console.log('Error connecting NodeServ.')
+          console.log(err)
         }
-      )
-    })
+      }
+    )
+
+    // node.on('input', function (msg) {
+    //   console.log('on here!')
+
+    //   // connecting server
+    //   nodesvClient.RegisterNode(
+    //     {
+    //       node_name: program.hostname,
+    //       node_type: NodeType.values.PROVIDER,
+    //       channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+    //     },
+    //     (err, resp) => {
+    //       if (!err) {
+    //         console.log('NodeServer connect success!')
+    //         console.log(resp)
+    //         console.log('Node ID is ', resp.node_id)
+    //         console.log('Server Info is ', resp.server_info)
+    //         console.log('KeepAlive is ', resp.keepalive_duration)
+
+    //         const client = util.synerexServerClient(resp)
+
+    //         util.jsonSubscribeDemand(client, resp.node_id)
+
+    //         // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
+    //         // util.startKeepAlive(nodesvClient, resp)
+    //       } else {
+    //         console.log('Error connecting NodeServ.')
+    //         console.log(err)
+    //       }
+    //     }
+    //   )
+    // })
     node.on('close', function () {
       console.log('close')
     })

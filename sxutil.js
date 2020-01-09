@@ -4,6 +4,7 @@ const protoLoader = require('@grpc/proto-loader')
 const Protobuf = require('protobufjs')
 const { UniqueID } = require('nodejs-snowflake')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
+const channel_STRAGE = 9 // temp json
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
@@ -151,7 +152,7 @@ module.exports = class Sxutil {
     var sp = {
       id: uid.getUniqueID(),
       sendr_id: node_id,
-      channel_type: channel_RIDESHARE,
+      channel_type: channel_STRAGE,
       supply_name: 'RS Notify',
       arg_json: '',
       cdata: { entity: buffer }
@@ -167,19 +168,22 @@ module.exports = class Sxutil {
   }
 
   jsonSubscribeDemand(client, node_id) {
+    console.log('jsonSubscribeDemand =======================')
     var ch = {
       client_id: node_id,
-      channel_type: channel_RIDESHARE,
+      channel_type: channel_STRAGE,
       arg_json: 'Test...'
     }
 
     var call = client.SubscribeDemand(ch)
 
     call.on('data', function (supply) {
-      console.log('receive Supply:', supply)
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+      console.log('json receive Supply:', supply)
       //        console.log("CDATA:",supply.cdata.entity);
       var jsonRc = JsonRecord.decode(supply.cdata.entity)
       console.log(jsonRc)
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     })
     call.on('status', function (st) {
       console.log('Subscribe Status', st)
