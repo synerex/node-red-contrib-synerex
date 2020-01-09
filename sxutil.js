@@ -229,7 +229,63 @@ module.exports = class Sxutil {
     })
   }
 
+  fleetNotifyDemand(client, node_id) {
+    var flt = Fleet.create({
+      coord: { lat: 55.55, lon: 155.55 },
+      vehicle_id: 1,
+      angle: 150,
+      speed: 250
+    })
+
+    console.log('fleetNotifyDemand', flt)
+    const uid = new UniqueID()
+
+    var buffer = Fleet.encode(flt).finish()
+    var sp = {
+      id: uid.getUniqueID(), // should use snowflake id..
+      sendr_id: node_id,
+      channel_type: channel_RIDESHARE,
+      supply_name: 'RS Notify',
+      arg_json: '',
+      cdata: { entity: buffer }
+    }
+
+    client.NotifyDemand(sp, (err, resp) => {
+      if (!err) {
+        console.log('NotifyDemand Sent OK', resp)
+      } else {
+        console.log('NotifyDemand error', err)
+      }
+    })
+  }
+
   fleetSubscribeDemand(client, node_id, callback) {
+    var ch = {
+      client_id: node_id,
+      channel_type: channel_RIDESHARE,
+      arg_json: 'Test...'
+    }
+
+    var call = client.SubscribeDemand(ch)
+
+    call.on('data', function (supply) {
+      console.log('==================')
+      console.log('receive Supply:', supply)
+      var flt = Fleet.decode(supply.cdata.entity)
+      console.log(flt)
+      console.log('==================')
+      callback(null, flt)
+    })
+    call.on('status', function (st) {
+      console.log('Subscribe Status', st)
+    })
+
+    call.on('end', function () {
+      console.log('Subscribe Done!')
+    })
+  }
+
+  fleetSubscribeSupply(client, node_id, callback) {
     var ch = {
       client_id: node_id,
       channel_type: channel_RIDESHARE,

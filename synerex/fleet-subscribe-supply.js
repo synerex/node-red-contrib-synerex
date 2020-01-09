@@ -18,7 +18,7 @@ program
 
 module.exports = function (RED) {
   'use strict'
-  function FleetSubscribeDemandNode(config) {
+  function FleetSubscribeSupplyNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
@@ -48,12 +48,12 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          util.fleetSubscribeDemand(client, resp.node_id, function (
+          util.fleetSubscribeSupply(client, resp.node_id, function (
             err,
             success
           ) {
             if (err) {
-              console.log('error!', err)
+              console.log('error!')
               node.status({ fill: 'red', shape: 'dot', text: 'error' })
             } else {
               var result = {
@@ -79,5 +79,5 @@ module.exports = function (RED) {
       node.status({})
     })
   }
-  RED.nodes.registerType('FleetSubscribeDemand', FleetSubscribeDemandNode)
+  RED.nodes.registerType('FleetSubscribeSupply', FleetSubscribeSupplyNode)
 }
