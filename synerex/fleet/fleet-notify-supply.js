@@ -36,7 +36,11 @@ module.exports = function (RED) {
       return
     }
 
+    console.log(this.login)
+    console.log('this.login.noderserv', this.login.nodeserv)
+
     const nodesvClient = new util.nodeapi.Node(
+      // program.nodesrv,
       this.login.nodeserv,
       grpc.credentials.createInsecure()
     )

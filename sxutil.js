@@ -312,6 +312,7 @@ module.exports = class Sxutil {
   }
 
   startKeepAlive(nClient, resp) {
+    console.log('startKeepAlive')
     global.update = 0
     setInterval(() => {
       var updt = {

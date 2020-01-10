@@ -37,7 +37,7 @@ module.exports = function (RED) {
     }
 
     const nodesvClient = new util.nodeapi.Node(
-      this.login.nodesrv,
+      this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
