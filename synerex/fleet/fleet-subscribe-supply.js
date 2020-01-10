@@ -44,9 +44,9 @@ module.exports = function (RED) {
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
     // get from global
-    var globalContext = this.context().global
-    var nodeResp = globalContext.get('nodeResp')
-    var sxClient = globalContext.get('sxServerClient')
+    var context = this.context()
+    var nodeResp = context.get('nodeResp')
+    var sxClient = context.get('sxServerClient')
     if (nodeResp && sxClient) {
       console.log('has globa!!! ============')
       subscribe(sxClient, nodeResp.node_id)
@@ -71,11 +71,13 @@ module.exports = function (RED) {
           console.log('KeepAlive is ', resp.keepalive_duration)
 
           const client = util.synerexServerClient(resp)
+          console.log('#####################')
+          console.log(client)
 
-          // set global
-          globalContext.set('nodeResp', resp)
-          globalContext.set('sxServerClient', client)
-          // subscribe
+          // set context
+          context.set('nodeResp', resp)
+          context.set('sxServerClient', client)
+          // // subscribe
           subscribe(client, resp.node_id)
         } else {
           console.log('Error connecting NodeServ.')

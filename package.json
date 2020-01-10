@@ -34,6 +34,7 @@
   "node-red": {
     "nodes": {
       "sxutil": "./synerex/synerex.js",
+      "keepalive": "./synerex/keepalive/keepalive.js",
       "fleet-notify-supply": "./synerex/fleet/fleet-notify-supply.js",
       "fleet-notify-demand": "./synerex/fleet/fleet-notify-demand.js",
       "fleet-subscribe-supply": "./synerex/fleet/fleet-subscribe-supply.js",

@@ -46,12 +46,12 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       console.log('on here!')
 
-      var globalContext = this.context().global
-      var nodeResp = globalContext.get('nodeResp')
-      var sxClient = globalContext.get('sxServerClient')
+      var context = this.context()
+      var nodeResp = context.get('nodeResp')
+      var sxClient = context.get('sxServerClient')
 
       if (nodeResp && sxClient) {
-        console.log('has globa!!! ============')
+        console.log('has context!!! ============')
         util.fleetNotifyDemand(sxClient, nodeResp.node_id)
         return
       }
@@ -72,9 +72,9 @@ module.exports = function (RED) {
             console.log('KeepAlive is ', resp.keepalive_duration)
 
             const client = util.synerexServerClient(resp)
-            // set global
-            globalContext.set('nodeResp', resp)
-            globalContext.set('sxServerClient', client)
+            // set context
+            context.set('nodeResp', resp)
+            context.set('sxServerClient', client)
 
             util.fleetNotifyDemand(client, resp.node_id)
           } else {

@@ -36,25 +36,22 @@ module.exports = function (RED) {
       return
     }
 
-    console.log(this.login)
-    console.log('this.login.noderserv', this.login.nodeserv)
-
     const nodesvClient = new util.nodeapi.Node(
-      // program.nodesrv,
       this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
+    // Input Action
     node.on('input', function (msg) {
       console.log('on here!')
       // get from global
-      var globalContext = this.context().global
-      var nodeResp = globalContext.get('nodeResp')
-      var sxClient = globalContext.get('sxServerClient')
+      var context = this.context()
+      var nodeResp = context.get('nodeResp')
+      var sxClient = context.get('sxServerClient')
 
       if (nodeResp && sxClient) {
-        console.log('has globa!!! ============')
+        console.log('has context!!! ============')
         util.fleetNotifySupply(sxClient, nodeResp.node_id)
         return
       }
@@ -76,9 +73,9 @@ module.exports = function (RED) {
 
             const client = util.synerexServerClient(resp)
 
-            // set global
-            globalContext.set('nodeResp', resp)
-            globalContext.set('sxServerClient', client)
+            // set context
+            context.set('nodeResp', resp)
+            context.set('sxServerClient', client)
 
             util.fleetNotifySupply(client, resp.node_id)
           } else {

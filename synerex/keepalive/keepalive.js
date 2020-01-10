@@ -18,7 +18,7 @@ program
 
 module.exports = function (RED) {
   'use strict'
-  function FleetSubscribeDemandNode(config) {
+  function KeepaliveNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
@@ -37,20 +37,22 @@ module.exports = function (RED) {
     }
 
     const nodesvClient = new util.nodeapi.Node(
+      // program.nodesrv,
       this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    // get global
-    var context = this.context()
-    var nodeResp = context.get('nodeResp')
-    var sxClient = context.get('sxServerClient')
-
-    if (nodeResp && sxClient) {
-      console.log('has context!!! ============')
-      subscribe(sxClient, nodeResp.node_id)
-      return
+    // get from global
+    var globalContext = this.context().global
+    var nodeResp = globalContext.get('nodeResp')
+    var ka = globalContext.get('activeKeepalive')
+    if (nodeResp) {
+      console.log('has globa!!! ============')
+      if (!ka) {
+        util.startKeepAlive(nodesvClient, resp)
+        globalContext.set('activeKeepalive', true)
+      }
     }
 
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
@@ -72,11 +74,13 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          // set context
-          context.set('nodeResp', resp)
-          context.set('sxServerClient', client)
-          // subscribe
-          subscribe(client, resp.node_id)
+          // set global
+          globalContext.set('nodeResp', resp)
+          globalContext.set('sxServerClient', client)
+          // keepalive
+          util.startKeepAlive(nodesvClient, resp)
+          console.log('input global!~~~~~~~~~~~~~~~~~~~')
+          globalContext.set('activeKeepalive', true)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -85,28 +89,9 @@ module.exports = function (RED) {
       }
     )
 
-    node.on('close', function () {
-      node.status({})
+    util.node.on('close', function () {
+      console.log('close')
     })
-
-    function subscribe(client, resp) {
-      util.fleetSubscribeDemand(client, resp.node_id, function (err, success) {
-        if (err) {
-          console.log('error!', err)
-          node.status({ fill: 'red', shape: 'dot', text: 'error' })
-        } else {
-          var result = {
-            coord: {
-              lat: success.coord.lat,
-              lon: success.coord.lon
-            },
-            angle: success.angle,
-            speed: success.speed
-          }
-          node.send({ payload: result })
-        }
-      })
-    }
   }
-  RED.nodes.registerType('FleetSubscribeDemand', FleetSubscribeDemandNode)
+  RED.nodes.registerType('Keepalive', KeepaliveNode)
 }
