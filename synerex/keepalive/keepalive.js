@@ -44,16 +44,16 @@ module.exports = function (RED) {
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
     // get from global
-    var globalContext = this.context().global
-    var nodeResp = globalContext.get('nodeResp')
-    var ka = globalContext.get('activeKeepalive')
-    if (nodeResp) {
-      console.log('has globa!!! ============')
-      if (!ka) {
-        util.startKeepAlive(nodesvClient, resp)
-        globalContext.set('activeKeepalive', true)
-      }
-    }
+    // var globalContext = this.context().global
+    // var nodeResp = globalContext.get('nodeResp')
+    // var ka = globalContext.get('activeKeepalive')
+    // if (nodeResp) {
+    //   console.log('has globa!!! ============')
+    //   if (!ka) {
+    //     util.startKeepAlive(nodesvClient, resp)
+    //     globalContext.set('activeKeepalive', true)
+    //   }
+    // }
 
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
@@ -66,21 +66,16 @@ module.exports = function (RED) {
       (err, resp) => {
         if (!err) {
           node.status({ fill: 'green', shape: 'dot', text: 'connected' })
-          console.log('NodeServer connect success!')
-          console.log(resp)
-          console.log('Node ID is ', resp.node_id)
-          console.log('Server Info is ', resp.server_info)
-          console.log('KeepAlive is ', resp.keepalive_duration)
 
           const client = util.synerexServerClient(resp)
 
           // set global
-          globalContext.set('nodeResp', resp)
-          globalContext.set('sxServerClient', client)
+          // globalContext.set('nodeResp', resp)
+          // globalContext.set('sxServerClient', client)
           // keepalive
           util.startKeepAlive(nodesvClient, resp)
-          console.log('input global!~~~~~~~~~~~~~~~~~~~')
-          globalContext.set('activeKeepalive', true)
+          // console.log('input global!~~~~~~~~~~~~~~~~~~~')
+          // globalContext.set('activeKeepalive', true)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })

@@ -47,6 +47,7 @@ module.exports = function (RED) {
     var context = this.context()
     var nodeResp = context.get('nodeResp')
     var sxClient = context.get('sxServerClient')
+
     if (nodeResp && sxClient) {
       console.log('has globa!!! ============')
       subscribe(sxClient, nodeResp.node_id)
