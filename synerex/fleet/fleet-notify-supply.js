@@ -57,6 +57,7 @@ module.exports = function (RED) {
       // console.log('=============================')
       // console.log(sxClient)
       // console.log('=============================')
+
       if (nodeResp && sxClient) {
         console.log('has globa!!! ============')
         util.fleetNotifySupply(sxClient, nodeResp.node_id)

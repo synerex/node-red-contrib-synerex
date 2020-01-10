@@ -23,21 +23,6 @@ module.exports = function (RED) {
     var node = this
     var util = new Sxutil()
 
-    // get from global
-    var globalContext = this.context().global
-    var nodeResp = globalContext.get('nodeResp')
-    var sxClient = globalContext.get('sxServerClient')
-    // console.log('=============================')
-    // console.log(nodeResp)
-    // console.log('=============================')
-    // console.log(sxClient)
-    // console.log('=============================')
-    if (nodeResp && sxClient) {
-      console.log('has globa!!! ============')
-      subscribe(sxClient, nodeResp.node_id)
-      return
-    }
-
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
     if (!this.login) {
@@ -57,6 +42,20 @@ module.exports = function (RED) {
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
+
+    // get from global
+    var globalContext = this.context().global
+    var nodeResp = globalContext.get('nodeResp')
+    var sxClient = globalContext.get('sxServerClient')
+    // console.log('=============================')
+    // console.log(nodeResp)
+    // console.log('=============================')
+    // console.log(sxClient)
+    if (nodeResp && sxClient) {
+      console.log('has globa!!! ============')
+      subscribe(sxClient, nodeResp.node_id, nodesvClient)
+      return
+    }
 
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
@@ -81,7 +80,7 @@ module.exports = function (RED) {
           globalContext.set('nodeResp', resp)
           globalContext.set('sxServerClient', client)
 
-          subscribe(client, resp.node_id)
+          subscribe(client, resp.node_id, nodesvClient)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
