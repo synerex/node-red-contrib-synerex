@@ -1,4 +1,4 @@
-const Sxutil = require('../sxutil.js')
+const Sxutil = require('../../sxutil.js')
 
 const grpc = require('grpc')
 const program = require('commander')
@@ -18,7 +18,7 @@ program
 
 module.exports = function (RED) {
   'use strict'
-  function SubscribeDemandNode(config) {
+  function FleetSubscribeSupplyNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
@@ -30,6 +30,7 @@ module.exports = function (RED) {
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
+    // connecting server
     nodesvClient.RegisterNode(
       {
         node_name: program.hostname,
@@ -47,51 +48,36 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          util.jsonSubscribeDemand(client, resp.node_id)
-
-          // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
-          // util.startKeepAlive(nodesvClient, resp)
+          util.fleetSubscribeSupply(client, resp.node_id, function (
+            err,
+            success
+          ) {
+            if (err) {
+              console.log('error!')
+              node.status({ fill: 'red', shape: 'dot', text: 'error' })
+            } else {
+              var result = {
+                coord: {
+                  lat: success.coord.lat,
+                  lon: success.coord.lon
+                },
+                angle: success.angle,
+                speed: success.speed
+              }
+              node.send({ payload: result })
+            }
+          })
         } else {
           console.log('Error connecting NodeServ.')
+          node.status({ fill: 'red', shape: 'dot', text: 'error' })
           console.log(err)
         }
       }
     )
 
-    // node.on('input', function (msg) {
-    //   console.log('on here!')
-
-    //   // connecting server
-    //   nodesvClient.RegisterNode(
-    //     {
-    //       node_name: program.hostname,
-    //       node_type: NodeType.values.PROVIDER,
-    //       channelTypes: [channel_RIDESHARE] // RIDE_SHARE
-    //     },
-    //     (err, resp) => {
-    //       if (!err) {
-    //         console.log('NodeServer connect success!')
-    //         console.log(resp)
-    //         console.log('Node ID is ', resp.node_id)
-    //         console.log('Server Info is ', resp.server_info)
-    //         console.log('KeepAlive is ', resp.keepalive_duration)
-
-    //         const client = util.synerexServerClient(resp)
-
-    //         util.jsonSubscribeDemand(client, resp.node_id)
-
-    //         // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
-    //         // util.startKeepAlive(nodesvClient, resp)
-    //       } else {
-    //         console.log('Error connecting NodeServ.')
-    //         console.log(err)
-    //       }
-    //     }
-    //   )
-    // })
     node.on('close', function () {
-      console.log('close')
+      node.status({})
     })
   }
-  RED.nodes.registerType('SubscribeDemand', SubscribeDemandNode)
+  RED.nodes.registerType('FleetSubscribeSupply', FleetSubscribeSupplyNode)
 }

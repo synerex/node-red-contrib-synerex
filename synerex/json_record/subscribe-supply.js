@@ -1,4 +1,4 @@
-const Sxutil = require('../sxutil.js')
+const Sxutil = require('../../sxutil.js')
 
 const grpc = require('grpc')
 const program = require('commander')

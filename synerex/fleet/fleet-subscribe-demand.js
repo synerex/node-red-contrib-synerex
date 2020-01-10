@@ -1,4 +1,4 @@
-const Sxutil = require('../sxutil.js')
+const Sxutil = require('../../sxutil.js')
 
 const grpc = require('grpc')
 const program = require('commander')
@@ -18,7 +18,7 @@ program
 
 module.exports = function (RED) {
   'use strict'
-  function FleetSubscribeSupplyNode(config) {
+  function FleetSubscribeDemandNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
@@ -48,12 +48,12 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          util.fleetSubscribeSupply(client, resp.node_id, function (
+          util.fleetSubscribeDemand(client, resp.node_id, function (
             err,
             success
           ) {
             if (err) {
-              console.log('error!')
+              console.log('error!', err)
               node.status({ fill: 'red', shape: 'dot', text: 'error' })
             } else {
               var result = {
@@ -79,5 +79,5 @@ module.exports = function (RED) {
       node.status({})
     })
   }
-  RED.nodes.registerType('FleetSubscribeSupply', FleetSubscribeSupplyNode)
+  RED.nodes.registerType('FleetSubscribeDemand', FleetSubscribeDemandNode)
 }

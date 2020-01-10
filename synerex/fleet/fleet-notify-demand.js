@@ -1,4 +1,4 @@
-const Sxutil = require('../sxutil.js')
+const Sxutil = require('../../sxutil.js')
 
 const grpc = require('grpc')
 const program = require('commander')
@@ -18,13 +18,26 @@ program
 
 module.exports = function (RED) {
   'use strict'
-  function NotifySupplyNode(config) {
+  function FleetNotifyDemandNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
 
+    // Get credental
+    this.login = RED.nodes.getNode(config.login) // Retrieve the config node
+    if (!this.login) {
+      console.log('not login ??')
+      node.status({
+        fill: 'red',
+        shape: 'dot',
+        text: 'Credential error'
+      })
+      node.error('No credentials specified')
+      return
+    }
+
     const nodesvClient = new util.nodeapi.Node(
-      program.nodesrv,
+      this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
@@ -35,7 +48,7 @@ module.exports = function (RED) {
       // connecting server
       nodesvClient.RegisterNode(
         {
-          node_name: program.hostname,
+          node_name: this.login.hostname,
           node_type: NodeType.values.PROVIDER,
           channelTypes: [channel_RIDESHARE] // RIDE_SHARE
         },
@@ -48,9 +61,7 @@ module.exports = function (RED) {
             console.log('KeepAlive is ', resp.keepalive_duration)
 
             const client = util.synerexServerClient(resp)
-
-            util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
-            util.startKeepAlive(nodesvClient, resp)
+            util.fleetNotifyDemand(client, resp.node_id)
           } else {
             console.log('Error connecting NodeServ.')
             console.log(err)
@@ -62,5 +73,5 @@ module.exports = function (RED) {
       console.log('close')
     })
   }
-  RED.nodes.registerType('NotifySupply', NotifySupplyNode)
+  RED.nodes.registerType('FleetNotifyDemand', FleetNotifyDemandNode)
 }
