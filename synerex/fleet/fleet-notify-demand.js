@@ -46,6 +46,16 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       console.log('on here!')
 
+      var globalContext = this.context().global
+      var nodeResp = globalContext.get('nodeResp')
+      var sxClient = globalContext.get('sxServerClient')
+
+      if (nodeResp && sxClient) {
+        console.log('has globa!!! ============')
+        util.fleetNotifyDemand(sxClient, nodeResp.node_id)
+        return
+      }
+
       // connecting server
       nodesvClient.RegisterNode(
         {
@@ -62,6 +72,10 @@ module.exports = function (RED) {
             console.log('KeepAlive is ', resp.keepalive_duration)
 
             const client = util.synerexServerClient(resp)
+            // set global
+            globalContext.set('nodeResp', resp)
+            globalContext.set('sxServerClient', client)
+
             util.fleetNotifyDemand(client, resp.node_id)
           } else {
             console.log('Error connecting NodeServ.')

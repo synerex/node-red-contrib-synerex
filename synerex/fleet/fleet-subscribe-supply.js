@@ -47,13 +47,9 @@ module.exports = function (RED) {
     var globalContext = this.context().global
     var nodeResp = globalContext.get('nodeResp')
     var sxClient = globalContext.get('sxServerClient')
-    // console.log('=============================')
-    // console.log(nodeResp)
-    // console.log('=============================')
-    // console.log(sxClient)
     if (nodeResp && sxClient) {
       console.log('has globa!!! ============')
-      subscribe(sxClient, nodeResp.node_id, nodesvClient)
+      subscribe(sxClient, nodeResp.node_id)
       return
     }
 
@@ -79,8 +75,8 @@ module.exports = function (RED) {
           // set global
           globalContext.set('nodeResp', resp)
           globalContext.set('sxServerClient', client)
-
-          subscribe(client, resp.node_id, nodesvClient)
+          // subscribe
+          subscribe(client, resp.node_id)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })

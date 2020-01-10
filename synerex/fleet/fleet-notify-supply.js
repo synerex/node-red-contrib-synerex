@@ -52,11 +52,6 @@ module.exports = function (RED) {
       var globalContext = this.context().global
       var nodeResp = globalContext.get('nodeResp')
       var sxClient = globalContext.get('sxServerClient')
-      // console.log('=============================')
-      // console.log(nodeResp)
-      // console.log('=============================')
-      // console.log(sxClient)
-      // console.log('=============================')
 
       if (nodeResp && sxClient) {
         console.log('has globa!!! ============')

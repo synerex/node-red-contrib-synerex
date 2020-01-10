@@ -42,6 +42,17 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
+    // get global
+    var globalContext = this.context().global
+    var nodeResp = globalContext.get('nodeResp')
+    var sxClient = globalContext.get('sxServerClient')
+
+    if (nodeResp && sxClient) {
+      console.log('has globa!!! ============')
+      subscribe(sxClient, nodeResp.node_id)
+      return
+    }
+
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
     nodesvClient.RegisterNode(
@@ -61,25 +72,11 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          util.fleetSubscribeDemand(client, resp.node_id, function (
-            err,
-            success
-          ) {
-            if (err) {
-              console.log('error!', err)
-              node.status({ fill: 'red', shape: 'dot', text: 'error' })
-            } else {
-              var result = {
-                coord: {
-                  lat: success.coord.lat,
-                  lon: success.coord.lon
-                },
-                angle: success.angle,
-                speed: success.speed
-              }
-              node.send({ payload: result })
-            }
-          })
+          // set global
+          globalContext.set('nodeResp', resp)
+          globalContext.set('sxServerClient', client)
+          // subscribe
+          subscribe(client, resp.node_id)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -91,6 +88,25 @@ module.exports = function (RED) {
     node.on('close', function () {
       node.status({})
     })
+
+    function subscribe(client, resp) {
+      util.fleetSubscribeDemand(client, resp.node_id, function (err, success) {
+        if (err) {
+          console.log('error!', err)
+          node.status({ fill: 'red', shape: 'dot', text: 'error' })
+        } else {
+          var result = {
+            coord: {
+              lat: success.coord.lat,
+              lon: success.coord.lon
+            },
+            angle: success.angle,
+            speed: success.speed
+          }
+          node.send({ payload: result })
+        }
+      })
+    }
   }
   RED.nodes.registerType('FleetSubscribeDemand', FleetSubscribeDemandNode)
 }

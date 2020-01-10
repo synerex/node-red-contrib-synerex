@@ -34,11 +34,6 @@
   "node-red": {
     "nodes": {
       "sxutil": "./synerex/synerex.js",
-      "fleet": "./synerex/fleet.js",
-      "notify-supply": "./synerex/json_record/notify-supply.js",
-      "notify-demand": "./synerex/json_record/notify-demand.js",
-      "subscribe-supply": "./synerex/json_record/subscribe-supply.js",
-      "subscribe-demand": "./synerex/json_record/subscribe-demand.js",
       "fleet-notify-supply": "./synerex/fleet/fleet-notify-supply.js",
       "fleet-notify-demand": "./synerex/fleet/fleet-notify-demand.js",
       "fleet-subscribe-supply": "./synerex/fleet/fleet-subscribe-supply.js",
