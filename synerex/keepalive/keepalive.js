@@ -66,9 +66,6 @@ module.exports = function (RED) {
       (err, resp) => {
         if (!err) {
           node.status({ fill: 'green', shape: 'dot', text: 'connected' })
-
-          const client = util.synerexServerClient(resp)
-
           // set global
           // globalContext.set('nodeResp', resp)
           // globalContext.set('sxServerClient', client)
@@ -84,7 +81,7 @@ module.exports = function (RED) {
       }
     )
 
-    util.node.on('close', function () {
+    node.on('close', function () {
       console.log('close')
     })
   }

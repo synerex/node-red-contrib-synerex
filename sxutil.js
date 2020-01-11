@@ -260,8 +260,6 @@ module.exports = class Sxutil {
     }
 
     var call = client.SubscribeDemand(ch)
-    console.log('||||||||||||||')
-    console.log(node_id)
 
     call.on('data', function (supply) {
       console.log('==================')
@@ -281,8 +279,6 @@ module.exports = class Sxutil {
   }
 
   fleetSubscribeSupply(client, node_id, callback) {
-    console.log('||||||||||||||')
-    console.log(node_id)
     var ch = {
       client_id: node_id,
       channel_type: channel_RIDESHARE,
@@ -310,6 +306,7 @@ module.exports = class Sxutil {
 
   startKeepAlive(nClient, resp) {
     console.log('startKeepAlive')
+    console.log('resp.secret', resp.secret)
     global.update = 0
     setInterval(() => {
       var updt = {
