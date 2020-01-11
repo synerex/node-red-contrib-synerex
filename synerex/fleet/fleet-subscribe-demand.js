@@ -1,4 +1,4 @@
-const Sxutil = require('../sxutil.js')
+const Sxutil = require('../../sxutil.js')
 
 const grpc = require('grpc')
 const program = require('commander')
@@ -23,17 +23,41 @@ module.exports = function (RED) {
     var node = this
     var util = new Sxutil()
 
+    // Get credental
+    this.login = RED.nodes.getNode(config.login) // Retrieve the config node
+    if (!this.login) {
+      console.log('not login ??')
+      node.status({
+        fill: 'red',
+        shape: 'dot',
+        text: 'Credential error'
+      })
+      node.error('No credentials specified')
+      return
+    }
+
     const nodesvClient = new util.nodeapi.Node(
-      program.nodesrv,
+      this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
+
+    // get from context
+    var context = this.context()
+    var nodeResp = context.get('nodeResp')
+    var sxClient = context.get('sxServerClient')
+
+    if (nodeResp && sxClient) {
+      console.log('has context!!! ============')
+      subscribe(sxClient, nodeResp)
+      return
+    }
 
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
     nodesvClient.RegisterNode(
       {
-        node_name: program.hostname,
+        node_name: this.login.hostname,
         node_type: NodeType.values.PROVIDER,
         channelTypes: [channel_RIDESHARE] // RIDE_SHARE
       },
@@ -48,32 +72,11 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          util.fleetSubscribeDemand(client, resp.node_id, function (
-            err,
-            success
-          ) {
-            if (err) {
-              console.log('error!')
-              node.status({ fill: 'red', shape: 'dot', text: 'error' })
-            } else {
-              // console.log('success subsc')
-              // console.log(success)
-              // console.log(success.coord)
-              // console.log(success.coord.lat)
-              // console.log(success.coord.lon)
-              // console.log(success.angle)
-              // console.log(success.speed)
-              var result = {
-                coord: {
-                  lat: success.coord.lat,
-                  lon: success.coord.lon
-                },
-                angle: success.angle,
-                speed: success.speed
-              }
-              node.send({ payload: result })
-            }
-          })
+          // set context
+          context.set('nodeResp', resp)
+          context.set('sxServerClient', client)
+          // subscribe
+          subscribe(client, resp.node_id)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -85,6 +88,25 @@ module.exports = function (RED) {
     node.on('close', function () {
       node.status({})
     })
+
+    function subscribe(client, resp) {
+      util.fleetSubscribeDemand(client, resp, function (err, success) {
+        if (err) {
+          console.log('error!', err)
+          node.status({ fill: 'red', shape: 'dot', text: 'error' })
+        } else {
+          var result = {
+            coord: {
+              lat: success.coord.lat,
+              lon: success.coord.lon
+            },
+            angle: success.angle,
+            speed: success.speed
+          }
+          node.send({ payload: result })
+        }
+      })
+    }
   }
   RED.nodes.registerType('FleetSubscribeDemand', FleetSubscribeDemandNode)
 }

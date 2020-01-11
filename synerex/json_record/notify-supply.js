@@ -1,4 +1,4 @@
-const Sxutil = require('../sxutil.js')
+const Sxutil = require('../../sxutil.js')
 
 const grpc = require('grpc')
 const program = require('commander')
@@ -18,7 +18,7 @@ program
 
 module.exports = function (RED) {
   'use strict'
-  function SubscribeSupplyNode(config) {
+  function NotifySupplyNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
@@ -47,10 +47,10 @@ module.exports = function (RED) {
             console.log('Server Info is ', resp.server_info)
             console.log('KeepAlive is ', resp.keepalive_duration)
 
-            // const client = util.synerexServerClient(resp)
+            const client = util.synerexServerClient(resp)
 
-            // util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
-            // util.startKeepAlive(nodesvClient, resp)
+            util.sendJsonNotifySupply('{"hoo": "bar"}', client, resp.node_id)
+            util.startKeepAlive(nodesvClient, resp)
           } else {
             console.log('Error connecting NodeServ.')
             console.log(err)
@@ -62,5 +62,5 @@ module.exports = function (RED) {
       console.log('close')
     })
   }
-  RED.nodes.registerType('SubscribeSupply', SubscribeSupplyNode)
+  RED.nodes.registerType('NotifySupply', NotifySupplyNode)
 }

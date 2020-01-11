@@ -10,7 +10,8 @@
     "commander": "^4.0.1",
     "grpc": "^1.24.2",
     "nodejs-snowflake": "^1.4.1",
-    "save": "^2.4.0"
+    "save": "^2.4.0",
+    "snowyflake": "^1.0.1"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",
@@ -34,13 +35,11 @@
   "node-red": {
     "nodes": {
       "sxutil": "./synerex/synerex.js",
-      "fleet": "./synerex/fleet.js",
-      "notify-supply": "./synerex/notify-supply.js",
-      "notify-demand": "./synerex/notify-demand.js",
-      "subscribe-supply": "./synerex/subscribe-supply.js",
-      "subscribe-demand": "./synerex/subscribe-demand.js",
-      "fleet-notify-supply": "./synerex/fleet-notify-supply.js",
-      "fleet-subscribe-demand": "./synerex/fleet-subscribe-demand.js"
+      "keepalive": "./synerex/keepalive/keepalive.js",
+      "fleet-notify-supply": "./synerex/fleet/fleet-notify-supply.js",
+      "fleet-notify-demand": "./synerex/fleet/fleet-notify-demand.js",
+      "fleet-subscribe-supply": "./synerex/fleet/fleet-subscribe-supply.js",
+      "fleet-subscribe-demand": "./synerex/fleet/fleet-subscribe-demand.js"
     }
   },
   "author": "github_id:kuetsuhara",

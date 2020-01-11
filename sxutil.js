@@ -1,19 +1,13 @@
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
-// const program = require('commander')
 const Protobuf = require('protobufjs')
 const { UniqueID } = require('nodejs-snowflake')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
+const channel_STRAGE = 9 // temp json
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
 const json_path = __dirname + '/proto_json/json.proto'
-
-// program
-//   .version('1.0.0')
-//   .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-//   .option('-n, --hostname [name]', 'Hostname for provider', 'NodeJS_Sample')
-//   .parse(process.argv)
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
   keepCase: true,
@@ -151,7 +145,7 @@ module.exports = class Sxutil {
     var sp = {
       id: uid.getUniqueID(),
       sendr_id: node_id,
-      channel_type: channel_RIDESHARE,
+      channel_type: channel_STRAGE,
       supply_name: 'RS Notify',
       arg_json: '',
       cdata: { entity: buffer }
@@ -167,19 +161,22 @@ module.exports = class Sxutil {
   }
 
   jsonSubscribeDemand(client, node_id) {
+    console.log('jsonSubscribeDemand =======================')
     var ch = {
       client_id: node_id,
-      channel_type: channel_RIDESHARE,
+      channel_type: channel_STRAGE,
       arg_json: 'Test...'
     }
 
     var call = client.SubscribeDemand(ch)
 
     call.on('data', function (supply) {
-      console.log('receive Supply:', supply)
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
+      console.log('json receive Supply:', supply)
       //        console.log("CDATA:",supply.cdata.entity);
       var jsonRc = JsonRecord.decode(supply.cdata.entity)
       console.log(jsonRc)
+      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     })
     call.on('status', function (st) {
       console.log('Subscribe Status', st)
@@ -225,7 +222,63 @@ module.exports = class Sxutil {
     })
   }
 
+  fleetNotifyDemand(client, node_id) {
+    var flt = Fleet.create({
+      coord: { lat: 55.55, lon: 155.55 },
+      vehicle_id: 1,
+      angle: 150,
+      speed: 250
+    })
+
+    console.log('fleetNotifyDemand', flt)
+    const uid = new UniqueID()
+
+    var buffer = Fleet.encode(flt).finish()
+    var sp = {
+      id: uid.getUniqueID(), // should use snowflake id..
+      sendr_id: node_id,
+      channel_type: channel_RIDESHARE,
+      supply_name: 'RS Notify',
+      arg_json: '',
+      cdata: { entity: buffer }
+    }
+
+    client.NotifyDemand(sp, (err, resp) => {
+      if (!err) {
+        console.log('NotifyDemand Sent OK', resp)
+      } else {
+        console.log('NotifyDemand error', err)
+      }
+    })
+  }
+
   fleetSubscribeDemand(client, node_id, callback) {
+    var ch = {
+      client_id: node_id,
+      channel_type: channel_RIDESHARE,
+      arg_json: 'Test...'
+    }
+
+    var call = client.SubscribeDemand(ch)
+
+    call.on('data', function (supply) {
+      console.log('==================')
+      console.log('receive Supply:', supply)
+      var flt = Fleet.decode(supply.cdata.entity)
+      console.log(flt)
+      console.log('==================')
+      callback(null, flt)
+    })
+    call.on('status', function (st) {
+      console.log('Subscribe Status', st)
+    })
+
+    call.on('end', function () {
+      console.log('Subscribe Done!')
+    })
+  }
+
+  fleetSubscribeSupply(client, node_id, callback) {
     var ch = {
       client_id: node_id,
       channel_type: channel_RIDESHARE,
@@ -252,6 +305,8 @@ module.exports = class Sxutil {
   }
 
   startKeepAlive(nClient, resp) {
+    console.log('startKeepAlive')
+    console.log('resp.secret', resp.secret)
     global.update = 0
     setInterval(() => {
       var updt = {
