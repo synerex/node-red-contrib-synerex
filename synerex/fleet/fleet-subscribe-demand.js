@@ -49,7 +49,7 @@ module.exports = function (RED) {
 
     if (nodeResp && sxClient) {
       console.log('has context!!! ============')
-      subscribe(sxClient, nodeResp.node_id)
+      subscribe(sxClient, nodeResp)
       return
     }
 
@@ -90,7 +90,7 @@ module.exports = function (RED) {
     })
 
     function subscribe(client, resp) {
-      util.fleetSubscribeDemand(client, resp.node_id, function (err, success) {
+      util.fleetSubscribeDemand(client, resp, function (err, success) {
         if (err) {
           console.log('error!', err)
           node.status({ fill: 'red', shape: 'dot', text: 'error' })

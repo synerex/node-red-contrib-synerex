@@ -50,7 +50,7 @@ module.exports = function (RED) {
 
     if (nodeResp && sxClient) {
       console.log('has globa!!! ============')
-      subscribe(sxClient, nodeResp.node_id)
+      subscribe(sxClient, nodeResp)
       return
     }
 
@@ -93,7 +93,7 @@ module.exports = function (RED) {
     })
 
     function subscribe(client, resp) {
-      util.fleetSubscribeSupply(client, resp.node_id, function (err, success) {
+      util.fleetSubscribeSupply(client, resp, function (err, success) {
         if (err) {
           console.log('error!')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })

@@ -1,6 +1,5 @@
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
-// const program = require('commander')
 const Protobuf = require('protobufjs')
 const { UniqueID } = require('nodejs-snowflake')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
@@ -9,12 +8,6 @@ const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
 const json_path = __dirname + '/proto_json/json.proto'
-
-// program
-//   .version('1.0.0')
-//   .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-//   .option('-n, --hostname [name]', 'Hostname for provider', 'NodeJS_Sample')
-//   .parse(process.argv)
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
   keepCase: true,
@@ -267,6 +260,8 @@ module.exports = class Sxutil {
     }
 
     var call = client.SubscribeDemand(ch)
+    console.log('||||||||||||||')
+    console.log(node_id)
 
     call.on('data', function (supply) {
       console.log('==================')
@@ -286,6 +281,8 @@ module.exports = class Sxutil {
   }
 
   fleetSubscribeSupply(client, node_id, callback) {
+    console.log('||||||||||||||')
+    console.log(node_id)
     var ch = {
       client_id: node_id,
       channel_type: channel_RIDESHARE,
