@@ -42,7 +42,7 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    // get global
+    // get from context
     var context = this.context()
     var nodeResp = context.get('nodeResp')
     var sxClient = context.get('sxServerClient')
