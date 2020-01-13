@@ -314,4 +314,9 @@ module.exports = class Sxutil {
       console.log('Subscribe Done!')
     })
   }
+
+  unRegisterNode(client, resp) {
+    // hoo
+    console.log('resp', resp)
+  }
 }

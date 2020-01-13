@@ -22,6 +22,7 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
+    var context = this.context().global
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -63,7 +64,6 @@ module.exports = function (RED) {
           const client = util.synerexServerClient(resp)
 
           // get from context
-          var context = this.context().global
           var nodeResp = context.get('nodeResp')
           var sxClient = context.get('sxServerClient')
 
@@ -89,6 +89,8 @@ module.exports = function (RED) {
 
     node.on('close', function () {
       node.status({})
+      context.set('nodeResp', undefined)
+      context.set('sxServerClient', undefined)
       Keepalive.stopKeepAlive()
     })
 
