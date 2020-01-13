@@ -43,18 +43,6 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    // get from global
-    // var globalContext = this.context().global
-    // var nodeResp = globalContext.get('nodeResp')
-    // var ka = globalContext.get('activeKeepalive')
-    // if (nodeResp) {
-    //   console.log('has globa!!! ============')
-    //   if (!ka) {
-    //     util.startKeepAlive(nodesvClient, resp)
-    //     globalContext.set('activeKeepalive', true)
-    //   }
-    // }
-
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
     nodesvClient.RegisterNode(
@@ -66,13 +54,7 @@ module.exports = function (RED) {
       (err, resp) => {
         if (!err) {
           node.status({ fill: 'green', shape: 'dot', text: 'connected' })
-          // set global
-          // globalContext.set('nodeResp', resp)
-          // globalContext.set('sxServerClient', client)
-          // keepalive
           util.startKeepAlive(nodesvClient, resp)
-          // console.log('input global!~~~~~~~~~~~~~~~~~~~')
-          // globalContext.set('activeKeepalive', true)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -82,7 +64,7 @@ module.exports = function (RED) {
     )
 
     node.on('close', function () {
-      console.log('close')
+      util.stopKeepAlive()
     })
   }
   RED.nodes.registerType('Keepalive', KeepaliveNode)
