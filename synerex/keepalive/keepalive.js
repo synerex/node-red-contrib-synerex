@@ -45,6 +45,16 @@ module.exports = function (RED) {
 
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
+
+    var context = this.context().global
+    var nodeResp = context.get('nodeResp')
+    if (nodeResp) {
+      console.log('KP has context!', nodeResp)
+      keepalive(nodesvClient, nodeResp)
+      // node.status({ fill: 'green', shape: 'dot', text: 'connected' })
+      // util.startKeepAlive(nodesvClient, resp)
+    }
+
     nodesvClient.RegisterNode(
       {
         node_name: this.login.hostname,
@@ -53,8 +63,7 @@ module.exports = function (RED) {
       },
       (err, resp) => {
         if (!err) {
-          node.status({ fill: 'green', shape: 'dot', text: 'connected' })
-          util.startKeepAlive(nodesvClient, resp)
+          keepalive(nodesvClient, resp)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -66,6 +75,11 @@ module.exports = function (RED) {
     node.on('close', function () {
       util.stopKeepAlive()
     })
+
+    function keepalive(nodesvClient, resp) {
+      node.status({ fill: 'green', shape: 'dot', text: 'connected' })
+      util.startKeepAlive(nodesvClient, resp)
+    }
   }
   RED.nodes.registerType('Keepalive', KeepaliveNode)
 }

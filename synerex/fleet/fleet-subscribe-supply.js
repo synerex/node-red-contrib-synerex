@@ -1,5 +1,5 @@
 const Sxutil = require('../../sxutil.js')
-
+const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
 const program = require('commander')
 const Protobuf = require('protobufjs')
@@ -43,17 +43,6 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    // get from context
-    var context = this.context()
-    var nodeResp = context.get('nodeResp')
-    var sxClient = context.get('sxServerClient')
-
-    if (nodeResp && sxClient) {
-      console.log('has globa!!! ============')
-      subscribe(sxClient, nodeResp)
-      return
-    }
-
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
     nodesvClient.RegisterNode(
@@ -67,19 +56,29 @@ module.exports = function (RED) {
           node.status({ fill: 'green', shape: 'dot', text: 'connected' })
           console.log('NodeServer connect success!')
           console.log(resp)
-          console.log('Node ID is ', resp.node_id)
+          console.log('supply Node ID is ', resp.node_id)
           console.log('Server Info is ', resp.server_info)
           console.log('KeepAlive is ', resp.keepalive_duration)
 
           const client = util.synerexServerClient(resp)
-          console.log('#####################')
-          console.log(client)
 
-          // set context
-          context.set('nodeResp', resp)
-          context.set('sxServerClient', client)
-          // // subscribe
-          subscribe(client, resp.node_id)
+          // get from context
+          var context = this.context().global
+          var nodeResp = context.get('nodeResp')
+          var sxClient = context.get('sxServerClient')
+
+          if (nodeResp && sxClient) {
+            console.log('supply has context ============', nodeResp.node_id)
+            subscribe(sxClient, nodeResp.node_id)
+            Keepalive.startKeepAlive(nodesvClient, nodeResp)
+          } else {
+            // set context
+            context.set('nodeResp', resp)
+            context.set('sxServerClient', client)
+            // // subscribe
+            subscribe(client, resp.node_id)
+            Keepalive.startKeepAlive(nodesvClient, resp)
+          }
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -92,8 +91,8 @@ module.exports = function (RED) {
       node.status({})
     })
 
-    function subscribe(client, resp) {
-      util.fleetSubscribeSupply(client, resp, function (err, success) {
+    function subscribe(client, node_id) {
+      util.fleetSubscribeSupply(client, node_id, function (err, success) {
         if (err) {
           console.log('error!')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -105,8 +104,8 @@ module.exports = function (RED) {
             },
             angle: success.angle,
             speed: success.speed,
-	    vehicleId: success.vehicleId,
-	    timestamp: success.timestamp
+            vehicleId: success.vehicleId,
+            timestamp: success.timestamp
           }
           node.send({ payload: result })
         }
