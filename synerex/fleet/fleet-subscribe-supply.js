@@ -89,6 +89,7 @@ module.exports = function (RED) {
 
     node.on('close', function () {
       node.status({})
+      Keepalive.stopKeepAlive()
     })
 
     function subscribe(client, node_id) {

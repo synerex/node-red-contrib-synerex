@@ -2,7 +2,6 @@ class Keepalive {
   startKeepAlive(nClient, resp) {
     console.log('startKeepAlive')
     console.log('resp.secret', resp.secret)
-    console.log('this.keepaliveIterval:: ', this.keepaliveIterval)
     if (!this.keepaliveIterval) {
       console.log('DO keepalive')
       global.update = 0
@@ -26,7 +25,7 @@ class Keepalive {
   }
 
   stopKeepAlive() {
-    console.log('KP STOP!!!!!!!!!!!!!')
+    console.log('stop keepalive')
     clearInterval(this.keepaliveIterval)
   }
 }
