@@ -1,7 +1,8 @@
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 const Protobuf = require('protobufjs')
-const { UniqueID } = require('nodejs-snowflake')
+const FlakeId = require('flake-idgen')
+const intformat = require('biguint-format')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
 const channel_STRAGE = 9 // temp json
 const api_path = __dirname + '/synerex_api/synerex.proto'
@@ -35,7 +36,6 @@ const Fleet = fleetRoot.lookup('Fleet')
 
 const jsonRoot = Protobuf.loadSync(json_path)
 const JsonRecord = jsonRoot.lookup('JsonRecord')
-console.log('Json prot ...', JsonRecord)
 
 module.exports = class Sxutil {
   constructor() {
@@ -53,11 +53,14 @@ module.exports = class Sxutil {
     })
 
     console.log('Send Fleet Info', flt)
-    const uid = new UniqueID()
-
     var buffer = Fleet.encode(flt).finish()
+
+    // create snowflake id
+    var flakeIdGen = new FlakeId({ id: node_id })
+    var spid = intformat(flakeIdGen.next(), 'dec')
+
     var sp = {
-      id: uid.getUniqueID(), // should use snowflake id..
+      id: spid, // should use snowflake id
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
       supply_name: 'RS Notify',
@@ -141,9 +144,12 @@ module.exports = class Sxutil {
 
     var buffer = JsonRecord.encode(jsonrc).finish()
 
-    const uid = new UniqueID()
+    // create snowflake id
+    var flakeIdGen = new FlakeId({ id: node_id })
+    var spid = intformat(flakeIdGen.next(), 'dec')
+
     var sp = {
-      id: uid.getUniqueID(),
+      id: spid,
       sendr_id: node_id,
       channel_type: channel_STRAGE,
       supply_name: 'RS Notify',
@@ -201,17 +207,19 @@ module.exports = class Sxutil {
     })
 
     console.log('Send Fleet Info', flt)
-    const uid = new UniqueID()
+    var flakeIdGen = new FlakeId({ id: node_id })
+    var spid = intformat(flakeIdGen.next(), 'dec')
 
     var buffer = Fleet.encode(flt).finish()
     var sp = {
-      id: uid.getUniqueID(), // should use snowflake id..
+      id: spid, // should use snowflake id..
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
       supply_name: 'RS Notify',
       arg_json: '',
       cdata: { entity: buffer }
     }
+    console.log('===========::', sp)
 
     client.NotifySupply(sp, (err, resp) => {
       if (!err) {
@@ -231,11 +239,13 @@ module.exports = class Sxutil {
     })
 
     console.log('fleetNotifyDemand', flt)
-    const uid = new UniqueID()
+    // const uid = new UniqueID()
+    var flakeIdGen = new FlakeId({ id: node_id })
+    var spid = intformat(flakeIdGen.next(), 'dec')
 
     var buffer = Fleet.encode(flt).finish()
     var sp = {
-      id: uid.getUniqueID(), // should use snowflake id..
+      id: spid, // should use snowflake id..
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
       supply_name: 'RS Notify',
