@@ -1,5 +1,5 @@
 const Sxutil = require('../../sxutil.js')
-
+const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
 const program = require('commander')
 const Protobuf = require('protobufjs')
@@ -50,6 +50,7 @@ module.exports = function (RED) {
     if (nodeResp && sxClient) {
       console.log('has context ============')
       subscribe(sxClient, nodeResp.node_id)
+      Keepalive.startKeepAlive(nodesvClient, nodeResp)
       return
     }
 
@@ -77,6 +78,7 @@ module.exports = function (RED) {
           context.set('sxServerClient', client)
           // subscribe
           subscribe(client, resp.node_id)
+          Keepalive.startKeepAlive(nodesvClient, resp)
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
