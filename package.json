@@ -9,9 +9,7 @@
     "@grpc/proto-loader": "^0.5.3",
     "commander": "^4.0.1",
     "grpc": "^1.24.2",
-    "nodejs-snowflake": "^1.4.1",
-    "save": "^2.4.0",
-    "snowyflake": "^1.0.1"
+    "save": "^2.4.0"
   },
   "devDependencies": {
     "babel-eslint": "^10.0.3",

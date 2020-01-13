@@ -1,7 +1,7 @@
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 const Protobuf = require('protobufjs')
-const { UniqueID } = require('nodejs-snowflake')
+// const { UniqueID } = require('nodejs-snowflake')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
 const channel_STRAGE = 9 // temp json
 const api_path = __dirname + '/synerex_api/synerex.proto'
@@ -53,17 +53,28 @@ module.exports = class Sxutil {
     })
 
     console.log('Send Fleet Info', flt)
-    const uid = new UniqueID()
+
+    // const uid = new UniqueID()
 
     var buffer = Fleet.encode(flt).finish()
+
     var sp = {
-      id: uid.getUniqueID(), // should use snowflake id..
+      id: 1, // should use snowflake id..
       sendr_id: node_id,
       channel_type: channel_RIDESHARE,
       supply_name: 'RS Notify',
       arg_json: '',
       cdata: { entity: buffer }
     }
+
+    // var sp = {
+    //   id: uid.getUniqueID(), // should use snowflake id..
+    //   sendr_id: node_id,
+    //   channel_type: channel_RIDESHARE,
+    //   supply_name: 'RS Notify',
+    //   arg_json: '',
+    //   cdata: { entity: buffer }
+    // }
 
     client.NotifySupply(sp, (err, resp) => {
       if (!err) {
@@ -141,9 +152,18 @@ module.exports = class Sxutil {
 
     var buffer = JsonRecord.encode(jsonrc).finish()
 
-    const uid = new UniqueID()
+    // const uid = new UniqueID()
+    // var sp = {
+    //   id: uid.getUniqueID(),
+    //   sendr_id: node_id,
+    //   channel_type: channel_STRAGE,
+    //   supply_name: 'RS Notify',
+    //   arg_json: '',
+    //   cdata: { entity: buffer }
+    // }
+
     var sp = {
-      id: uid.getUniqueID(),
+      id: 1,
       sendr_id: node_id,
       channel_type: channel_STRAGE,
       supply_name: 'RS Notify',
