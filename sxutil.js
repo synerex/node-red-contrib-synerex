@@ -318,7 +318,7 @@ module.exports = class Sxutil {
     console.log('startKeepAlive')
     console.log('resp.secret', resp.secret)
     global.update = 0
-    setInterval(() => {
+    this.keepaliveIterval = setInterval(() => {
       var updt = {
         node_id: resp.node_id,
         secret: resp.secret,
@@ -334,5 +334,10 @@ module.exports = class Sxutil {
         }
       })
     }, resp.keepalive_duration * 1000)
+  }
+
+  stopKeepAlive() {
+    console.log('KP STOP!!!!!!!!!!!!!')
+    clearInterval(this.keepaliveIterval)
   }
 }
