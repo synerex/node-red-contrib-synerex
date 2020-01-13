@@ -6,7 +6,7 @@
 	url = https://github.com/synerex/synerex_nodeapi.git
 [submodule "synerex_api"]
 	path = synerex_api
-	url = https://github.com/synerex/synerex_api.git
+	url = https://github.com/synerex/synerex_api
 [submodule "proto_json"]
 	path = proto_json
 	url = https://github.com/synerex/proto_json.git
