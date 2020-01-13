@@ -43,18 +43,6 @@ module.exports = function (RED) {
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
-    // get from context
-    var context = this.context().global
-    var nodeResp = context.get('nodeResp')
-    var sxClient = context.get('sxServerClient')
-
-    if (nodeResp && sxClient) {
-      console.log('has context ============')
-      subscribe(sxClient, nodeResp.node_id)
-      Keepalive.startKeepAlive(nodesvClient, nodeResp)
-      return
-    }
-
     node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
     nodesvClient.RegisterNode(
@@ -74,12 +62,23 @@ module.exports = function (RED) {
 
           const client = util.synerexServerClient(resp)
 
-          // set context
-          context.set('nodeResp', resp)
-          context.set('sxServerClient', client)
-          // // subscribe
-          subscribe(client, resp.node_id)
-          Keepalive.startKeepAlive(nodesvClient, resp)
+          // get from context
+          var context = this.context().global
+          var nodeResp = context.get('nodeResp')
+          var sxClient = context.get('sxServerClient')
+
+          if (nodeResp && sxClient) {
+            console.log('supply has context ============', nodeResp.node_id)
+            subscribe(sxClient, nodeResp.node_id)
+            Keepalive.startKeepAlive(nodesvClient, nodeResp)
+          } else {
+            // set context
+            context.set('nodeResp', resp)
+            context.set('sxServerClient', client)
+            // // subscribe
+            subscribe(client, resp.node_id)
+            Keepalive.startKeepAlive(nodesvClient, resp)
+          }
         } else {
           console.log('Error connecting NodeServ.')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
