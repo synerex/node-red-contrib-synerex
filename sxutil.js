@@ -301,6 +301,7 @@ module.exports = class Sxutil {
       console.log('==================')
       console.log('receive Supply:', supply)
       var flt = Fleet.decode(supply.cdata.entity)
+	    flt.timestamp = supply.ts
       console.log(flt)
       console.log('==================')
       callback(null, flt)

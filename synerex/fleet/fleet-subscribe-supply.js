@@ -104,7 +104,9 @@ module.exports = function (RED) {
               lon: success.coord.lon
             },
             angle: success.angle,
-            speed: success.speed
+            speed: success.speed,
+	    vehicleId: success.vehicleId,
+	    timestamp: success.timestamp
           }
           node.send({ payload: result })
         }
