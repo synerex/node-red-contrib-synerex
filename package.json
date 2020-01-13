@@ -7,7 +7,9 @@
   },
   "dependencies": {
     "@grpc/proto-loader": "^0.5.3",
+    "biguint-format": "^1.0.1",
     "commander": "^4.0.1",
+    "flake-idgen": "^1.1.2",
     "grpc": "^1.24.2",
     "nodejs-snowflake": "^1.4.1",
     "save": "^2.4.0",
