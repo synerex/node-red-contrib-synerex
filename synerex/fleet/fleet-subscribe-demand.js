@@ -67,7 +67,7 @@ module.exports = function (RED) {
           node.status({ fill: 'green', shape: 'dot', text: 'connected' })
           console.log('NodeServer connect success!')
           console.log(resp)
-          console.log('Node ID is ', resp.node_id)
+          console.log('demand Node ID is ', resp.node_id)
           console.log('Server Info is ', resp.server_info)
           console.log('KeepAlive is ', resp.keepalive_duration)
 

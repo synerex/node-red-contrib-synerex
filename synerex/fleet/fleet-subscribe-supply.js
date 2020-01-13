@@ -68,13 +68,11 @@ module.exports = function (RED) {
           node.status({ fill: 'green', shape: 'dot', text: 'connected' })
           console.log('NodeServer connect success!')
           console.log(resp)
-          console.log('Node ID is ', resp.node_id)
+          console.log('supply Node ID is ', resp.node_id)
           console.log('Server Info is ', resp.server_info)
           console.log('KeepAlive is ', resp.keepalive_duration)
 
           const client = util.synerexServerClient(resp)
-          console.log('#####################')
-          console.log(client)
 
           // set context
           context.set('nodeResp', resp)
