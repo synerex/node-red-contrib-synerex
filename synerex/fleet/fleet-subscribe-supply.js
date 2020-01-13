@@ -44,13 +44,13 @@ module.exports = function (RED) {
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
 
     // get from context
-    var context = this.context()
+    var context = this.context().global
     var nodeResp = context.get('nodeResp')
     var sxClient = context.get('sxServerClient')
 
     if (nodeResp && sxClient) {
-      console.log('has globa!!! ============')
-      subscribe(sxClient, nodeResp)
+      console.log('has context ============')
+      subscribe(sxClient, nodeResp.node_id)
       return
     }
 
@@ -92,8 +92,8 @@ module.exports = function (RED) {
       node.status({})
     })
 
-    function subscribe(client, resp) {
-      util.fleetSubscribeSupply(client, resp, function (err, success) {
+    function subscribe(client, node_id) {
+      util.fleetSubscribeSupply(client, node_id, function (err, success) {
         if (err) {
           console.log('error!')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
@@ -105,8 +105,8 @@ module.exports = function (RED) {
             },
             angle: success.angle,
             speed: success.speed,
-	    vehicleId: success.vehicleId,
-	    timestamp: success.timestamp
+            vehicleId: success.vehicleId,
+            timestamp: success.timestamp
           }
           node.send({ payload: result })
         }

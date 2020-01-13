@@ -301,7 +301,7 @@ module.exports = class Sxutil {
       console.log('==================')
       console.log('receive Supply:', supply)
       var flt = Fleet.decode(supply.cdata.entity)
-	    flt.timestamp = supply.ts
+      flt.timestamp = supply.ts
       console.log(flt)
       console.log('==================')
       callback(null, flt)
@@ -318,23 +318,25 @@ module.exports = class Sxutil {
   startKeepAlive(nClient, resp) {
     console.log('startKeepAlive')
     console.log('resp.secret', resp.secret)
-    global.update = 0
-    this.keepaliveIterval = setInterval(() => {
-      var updt = {
-        node_id: resp.node_id,
-        secret: resp.secret,
-        update_count: global.udpate++,
-        node_status: 0,
-        node_arg: 'OK'
-      }
-      nClient.KeepAlive(updt, (err, resp) => {
-        if (!err) {
-          console.log('KeepAlive OK', resp)
-        } else {
-          console.log('Error!', err)
+    if (!this.keepaliveIterval) {
+      global.update = 0
+      this.keepaliveIterval = setInterval(() => {
+        var updt = {
+          node_id: resp.node_id,
+          secret: resp.secret,
+          update_count: global.udpate++,
+          node_status: 0,
+          node_arg: 'OK'
         }
-      })
-    }, resp.keepalive_duration * 1000)
+        nClient.KeepAlive(updt, (err, resp) => {
+          if (!err) {
+            console.log('KeepAlive OK', resp)
+          } else {
+            console.log('Error!', err)
+          }
+        })
+      }, resp.keepalive_duration * 1000)
+    }
   }
 
   stopKeepAlive() {
