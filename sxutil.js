@@ -1,7 +1,6 @@
 const grpc = require('grpc')
 const protoLoader = require('@grpc/proto-loader')
 const Protobuf = require('protobufjs')
-const { UniqueID } = require('nodejs-snowflake')
 const FlakeId = require('flake-idgen')
 const intformat = require('biguint-format')
 const channel_RIDESHARE = 1 // should read from synerex_proto .
