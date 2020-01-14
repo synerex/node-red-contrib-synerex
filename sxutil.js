@@ -315,8 +315,10 @@ module.exports = class Sxutil {
     })
   }
 
-  unRegisterNode(client, resp) {
-    // hoo
-    console.log('resp', resp)
+  unRegisterNode(nodeServClient, nodeResp) {
+    nodeServClient.UnRegisterNode(nodeResp.node_id, (err, resp) => {
+      console.log('unr ERROR', err)
+      console.log('unr RESP', resp)
+    })
   }
 }

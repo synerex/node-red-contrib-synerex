@@ -93,6 +93,9 @@ module.exports = function (RED) {
     )
 
     node.on('close', function () {
+      console.log('[CLOSE] =================')
+      var nodeResp = context.get('nodeResp')
+      util.unRegisterNode(nodesvClient, nodeResp)
       node.status({})
       context.set('nodeResp', undefined)
       context.set('sxServerClient', undefined)
