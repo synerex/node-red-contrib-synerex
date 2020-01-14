@@ -27,6 +27,7 @@ class Keepalive {
   stopKeepAlive() {
     console.log('stop keepalive')
     clearInterval(this.keepaliveIterval)
+    this.keepaliveIterval = undefined
   }
 }
 

@@ -1,0 +1,49 @@
+<script type="text/javascript">
+  RED.nodes.registerType('FleetSubscribe', {
+    category: 'Synerex',
+    color: '#b0c4de',
+    defaults: {
+      name: { value: "" },
+      subtype: { value: "supply" },
+      login: { type: "synerex-credentials" },
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: "file.png",
+    align: 'right',
+    label: function () {
+      if (this.name) {
+        return this.name;
+      } else {
+        return "Fleet Subscribe " + this.subtype
+      }
+    },
+    labelStyle: function () {
+      return this.name ? "node_label_italic" : "";
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="FleetSubscribe">
+  <div class="form-row">
+    <label for="node-input-login"><i class="fa fa-user"></i> Synerex info</label>
+    <input type="text" id="node-input-login">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-subtype"><i class="fa fa-user"></i> Subscribe type</label>
+    <select id="node-input-subtype">
+      <option value="supply">Supply</option>
+      <option value="demand">Demand</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="FleetSubscribe">
+  <p>FleetSubscribeSupply</p>
+</script>
