@@ -7,12 +7,13 @@ module.exports = function (RED) {
   'use strict'
   function SubscribeNode(config) {
     RED.nodes.createNode(this, config)
-    var node = this
-    var util = new Sxutil()
-    var context = this.context().global
+    const node = this
+    const util = new Sxutil()
+    const context = this.context().global
     // get subscribe info
-    var protcol = config.protcol
-    var subtype = config.subtype
+    const protcol = config.protcol
+    const subtype = config.subtype
+    const channel = util.getChannel(protcol)
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -54,8 +55,8 @@ module.exports = function (RED) {
           const client = util.synerexServerClient(resp)
 
           // get from context
-          var nodeResp = context.get('nodeResp')
-          var sxClient = context.get('sxServerClient')
+          let nodeResp = context.get('nodeResp')
+          let sxClient = context.get('sxServerClient')
 
           if (nodeResp && sxClient) {
             // if already have resp and client
@@ -77,36 +78,14 @@ module.exports = function (RED) {
       }
     )
 
-    node.on('close', function () {
-      console.log('[CLOSE] =================')
-      var nodeResp = context.get('nodeResp')
-      util.unRegisterNode(nodesvClient, nodeResp)
-      node.status({})
-      context.set('nodeResp', undefined)
-      context.set('sxServerClient', undefined)
-      Keepalive.stopKeepAlive()
-    })
-
+    // Subscribe Logic
     function subscribe(client, node_id) {
-      var subscFunc
-      switch (protcol) {
-        case 'fleet':
-          if (subtype == 'supply') {
-            subscFunc = util.fleetSubscribeSupply
-          } else {
-            subscFunc = util.fleetSubscribeDemand
-          }
-          break
-        default:
-          return
-      }
-
-      subscFunc(client, node_id, function (err, success) {
+      util.subscribe(client, node_id, channel, subtype, function (err, success) {
         if (err) {
           console.log('error!')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
         } else {
-          var result = {
+          let result = {
             coord: {
               lat: success.coord.lat,
               lon: success.coord.lon
@@ -120,6 +99,16 @@ module.exports = function (RED) {
         }
       })
     }
+
+    node.on('close', function () {
+      console.log('[CLOSE] =================')
+      let nodeResp = context.get('nodeResp')
+      util.unRegisterNode(nodesvClient, nodeResp)
+      node.status({})
+      context.set('nodeResp', undefined)
+      context.set('sxServerClient', undefined)
+      Keepalive.stopKeepAlive()
+    })
   }
   RED.nodes.registerType('Subscribe', SubscribeNode)
 }

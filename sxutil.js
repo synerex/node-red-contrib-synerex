@@ -103,7 +103,7 @@ module.exports = class Sxutil {
 
     var call = client.SubscribeSupply(ch)
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('==================')
       console.log('receive Supply:', supply)
       //        console.log("CDATA:",supply.cdata.entity);
@@ -111,11 +111,11 @@ module.exports = class Sxutil {
       console.log(flt)
       console.log('==================')
     })
-    call.on('status', function (st) {
+    call.on('status', function(st) {
       console.log('Subscribe Status', st)
     })
 
-    call.on('end', function () {
+    call.on('end', function() {
       console.log('Subscribe Done!')
     })
   }
@@ -193,7 +193,7 @@ module.exports = class Sxutil {
 
     var call = client.SubscribeDemand(ch)
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
       console.log('json receive Supply:', supply)
       //        console.log("CDATA:",supply.cdata.entity);
@@ -201,11 +201,11 @@ module.exports = class Sxutil {
       console.log(jsonRc)
       console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
     })
-    call.on('status', function (st) {
+    call.on('status', function(st) {
       console.log('Subscribe Status', st)
     })
 
-    call.on('end', function () {
+    call.on('end', function() {
       console.log('Subscribe Done!')
     })
   }
@@ -288,7 +288,7 @@ module.exports = class Sxutil {
 
     var call = client.SubscribeDemand(ch)
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('==================')
       console.log('receive Supply:', supply)
       var flt = Fleet.decode(supply.cdata.entity)
@@ -296,11 +296,11 @@ module.exports = class Sxutil {
       console.log('==================')
       callback(null, flt)
     })
-    call.on('status', function (st) {
+    call.on('status', function(st) {
       console.log('Subscribe Status', st)
     })
 
-    call.on('end', function () {
+    call.on('end', function() {
       console.log('Subscribe Done!')
     })
   }
@@ -314,7 +314,7 @@ module.exports = class Sxutil {
 
     var call = client.SubscribeSupply(ch)
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('==================')
       console.log('receive Supply:', supply)
       var flt = Fleet.decode(supply.cdata.entity)
@@ -323,11 +323,11 @@ module.exports = class Sxutil {
       console.log('==================')
       callback(null, flt)
     })
-    call.on('status', function (st) {
+    call.on('status', function(st) {
       console.log('Subscribe Status', st)
     })
 
-    call.on('end', function () {
+    call.on('end', function() {
       console.log('Subscribe Done!')
     })
   }
@@ -352,44 +352,44 @@ module.exports = class Sxutil {
     return channel
   }
 
-  subscribeSupply(client, node_id, channel, callback) {
-    var ch = {
+  subscribe(client, node_id, channel, subscType, callback) {
+    const ch = {
       client_id: node_id,
       channel_type: channel,
       arg_json: 'Test...'
     }
 
-    var call = client.SubscribeSupply(ch)
+    let call
+    if (subscType == 'supply') {
+      call = client.SubscribeSupply(ch)
+    } else {
+      call = client.SubscribeDemand(ch)
+    }
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('==================')
       console.log('receive Supply:', supply)
-      var decoded = supplydDataDecode(channel, supply)
+      var decoded
+      switch (channel) {
+        case CHANNEL.RIDE_SHARE:
+          decoded = Fleet.decode(supply.cdata.entity)
+          break
+
+        default:
+          decoded = Fleet.decode(supply.cdata.entity)
+          break
+      }
       decoded.timestamp = supply.ts
       console.log(decoded)
       console.log('==================')
       callback(null, decoded)
     })
-    call.on('status', function (st) {
+    call.on('status', function(st) {
       console.log('Subscribe Status', st)
     })
 
-    call.on('end', function () {
+    call.on('end', function() {
       console.log('Subscribe Done!')
     })
-  }
-
-  supplydDataDecode(channel, supply) {
-    var decoded
-    switch (channel) {
-      case CHANNEL.RIDE_SHARE:
-        decoded = Fleet.decode(supply.cdata.entity)
-        break
-
-      default:
-        decoded = Fleet.decode(supply.cdata.entity)
-        break
-    }
-    return decoded
   }
 }
