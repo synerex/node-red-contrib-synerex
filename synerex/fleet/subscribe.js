@@ -15,6 +15,7 @@ module.exports = function (RED) {
 
     // get subscribe type
     var subtype = config.subtype
+    var protcol = config.protcol
 
     console.log('config.subtype', config.subtype)
     console.log('config.protcol', config.protcol)
@@ -94,10 +95,18 @@ module.exports = function (RED) {
 
     function subscribe(client, node_id) {
       var subscFunc
-      if (subtype == 'supply') {
-        subscFunc = util.fleetSubscribeSupply
-      } else {
-        subscFunc = util.fleetSubscribeDemand
+
+      switch (protcol) {
+        case 'fleet':
+          if (subtype == 'supply') {
+            subscFunc = util.fleetSubscribeSupply
+          } else {
+            subscFunc = util.fleetSubscribeDemand
+          }
+          break
+
+        default:
+          return
       }
 
       subscFunc(client, node_id, function (err, success) {
