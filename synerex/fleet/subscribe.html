@@ -4,6 +4,7 @@
     color: '#b0c4de',
     defaults: {
       name: { value: "" },
+      protcol: { value: "fleet" },
       subtype: { value: "supply" },
       login: { type: "synerex-credentials" },
     },
@@ -28,6 +29,13 @@
   <div class="form-row">
     <label for="node-input-login"><i class="fa fa-user"></i> Synerex info</label>
     <input type="text" id="node-input-login">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-protcol"><i class="fa fa-user"></i> Subscribe protcol</label>
+    <select id="node-input-protcol">
+      <option value="fleet">Fleet</option>
+    </select>
   </div>
 
   <div class="form-row">

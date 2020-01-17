@@ -1,20 +1,9 @@
 const Sxutil = require('../../sxutil.js')
 const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
-const program = require('commander')
 const Protobuf = require('protobufjs')
 
 const channel_RIDESHARE = 1 // should read from synerex_proto .
-
-// program
-//   .version('1.0.0')
-//   .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-//   .option(
-//     '-n, --hostname [name]',
-//     'Hostname for provider',
-//     'NODE-RED-KARA-KITA'
-//   )
-//   .parse(process.argv)
 
 module.exports = function (RED) {
   'use strict'
@@ -28,6 +17,7 @@ module.exports = function (RED) {
     var subtype = config.subtype
 
     console.log('config.subtype', config.subtype)
+    console.log('config.protcol', config.protcol)
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
