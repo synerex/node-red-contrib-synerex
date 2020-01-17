@@ -37,6 +37,23 @@ const Fleet = fleetRoot.lookup('Fleet')
 const jsonRoot = Protobuf.loadSync(json_path)
 const JsonRecord = jsonRoot.lookup('JsonRecord')
 
+const CHANNEL = {
+  RIDE_SHARE: 1,
+  AD_SERVICE: 2,
+  LIB_SERVICE: 3,
+  PT_SERVICE: 4,
+  ROUTING_SERVICE: 5,
+  MARKETING_SERVICE: 6,
+  FLUENTD_SERVICE: 7,
+  MEETING_SERVICE: 8,
+  STORAGE_SERVICE: 9,
+  RETRIEVAL_SERVICE: 10,
+  PEOPLE_COUNTER_SVC: 11,
+  AREA_COUNTER_SVC: 12,
+  PEOPLE_AGENT_SVC: 13,
+  GEOGRAPHIC_SVC: 14
+}
+
 module.exports = class Sxutil {
   constructor() {
     this.nodeapi = nodeApiProto.nodeapi
@@ -318,5 +335,61 @@ module.exports = class Sxutil {
   unRegisterNode(client, resp) {
     // hoo
     console.log('resp', resp)
+  }
+
+  getChannel(protcol) {
+    var channel = 0
+    // set channel
+    switch (protcol) {
+      case 'fleet':
+        channel = CHANNEL.RIDE_SHARE
+        break
+
+      default:
+        channel = CHANNEL.RIDE_SHARE
+        break
+    }
+    return channel
+  }
+
+  subscribeSupply(client, node_id, channel, callback) {
+    var ch = {
+      client_id: node_id,
+      channel_type: channel,
+      arg_json: 'Test...'
+    }
+
+    var call = client.SubscribeSupply(ch)
+
+    call.on('data', function (supply) {
+      console.log('==================')
+      console.log('receive Supply:', supply)
+      var decoded = supplydDataDecode(channel, supply)
+      decoded.timestamp = supply.ts
+      console.log(decoded)
+      console.log('==================')
+      callback(null, decoded)
+    })
+    call.on('status', function (st) {
+      console.log('Subscribe Status', st)
+    })
+
+    call.on('end', function () {
+      console.log('Subscribe Done!')
+    })
+  }
+
+  supplydDataDecode(channel, supply) {
+    var decoded
+    switch (channel) {
+      case CHANNEL.RIDE_SHARE:
+        decoded = Fleet.decode(supply.cdata.entity)
+        break
+
+      default:
+        decoded = Fleet.decode(supply.cdata.entity)
+        break
+    }
+    return decoded
   }
 }

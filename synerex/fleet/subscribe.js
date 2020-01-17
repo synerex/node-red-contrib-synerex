@@ -3,8 +3,6 @@ const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
 const Protobuf = require('protobufjs')
 
-const channel_RIDESHARE = 1 // should read from synerex_proto .
-
 module.exports = function (RED) {
   'use strict'
   function SubscribeNode(config) {
@@ -12,13 +10,9 @@ module.exports = function (RED) {
     var node = this
     var util = new Sxutil()
     var context = this.context().global
-
-    // get subscribe type
-    var subtype = config.subtype
+    // get subscribe info
     var protcol = config.protcol
-
-    console.log('config.subtype', config.subtype)
-    console.log('config.protcol', config.protcol)
+    var subtype = config.subtype
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -33,20 +27,19 @@ module.exports = function (RED) {
       return
     }
 
+    // create node server client
     const nodesvClient = new util.nodeapi.Node(
-      // program.nodesrv,
       this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
-
-    node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
+    node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     nodesvClient.RegisterNode(
       {
         node_name: this.login.hostname,
         node_type: NodeType.values.PROVIDER,
-        channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+        channelTypes: [util.getChannel(protcol)]
       },
       (err, resp) => {
         if (!err) {
@@ -57,6 +50,7 @@ module.exports = function (RED) {
           console.log('Server Info is ', resp.server_info)
           console.log('KeepAlive is ', resp.keepalive_duration)
 
+          // create sever client
           const client = util.synerexServerClient(resp)
 
           // get from context
@@ -95,7 +89,6 @@ module.exports = function (RED) {
 
     function subscribe(client, node_id) {
       var subscFunc
-
       switch (protcol) {
         case 'fleet':
           if (subtype == 'supply') {
@@ -104,7 +97,6 @@ module.exports = function (RED) {
             subscFunc = util.fleetSubscribeDemand
           }
           break
-
         default:
           return
       }
