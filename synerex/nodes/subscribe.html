@@ -1,9 +1,10 @@
 <script type="text/javascript">
-  RED.nodes.registerType('FleetSubscribe', {
+  RED.nodes.registerType('Subscribe', {
     category: 'Synerex',
     color: '#b0c4de',
     defaults: {
       name: { value: "" },
+      protcol: { value: "fleet" },
       subtype: { value: "supply" },
       login: { type: "synerex-credentials" },
     },
@@ -15,7 +16,7 @@
       if (this.name) {
         return this.name;
       } else {
-        return "Fleet Subscribe " + this.subtype
+        return this.protcol + " subscribe " + this.subtype
       }
     },
     labelStyle: function () {
@@ -24,14 +25,21 @@
   });
 </script>
 
-<script type="text/x-red" data-template-name="FleetSubscribe">
+<script type="text/x-red" data-template-name="Subscribe">
   <div class="form-row">
     <label for="node-input-login"><i class="fa fa-user"></i> Synerex info</label>
     <input type="text" id="node-input-login">
   </div>
 
   <div class="form-row">
-    <label for="node-input-subtype"><i class="fa fa-user"></i> Subscribe type</label>
+    <label for="node-input-protcol"><i class="fa fa-tag"></i> Subscribe protcol</label>
+    <select id="node-input-protcol">
+      <option value="fleet">Fleet</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-subtype"><i class="fa fa-tag"></i> Subscribe type</label>
     <select id="node-input-subtype">
       <option value="supply">Supply</option>
       <option value="demand">Demand</option>
@@ -39,11 +47,11 @@
   </div>
 
   <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
     <input type="text" id="node-input-name" placeholder="Name">
   </div>
 </script>
 
-<script type="text/x-red" data-help-name="FleetSubscribe">
+<script type="text/x-red" data-help-name="Subscribe">
   <p>FleetSubscribeSupply</p>
 </script>

@@ -1,33 +1,19 @@
 const Sxutil = require('../../sxutil.js')
 const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
-const program = require('commander')
 const Protobuf = require('protobufjs')
-
-const channel_RIDESHARE = 1 // should read from synerex_proto .
-
-// program
-//   .version('1.0.0')
-//   .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-//   .option(
-//     '-n, --hostname [name]',
-//     'Hostname for provider',
-//     'NODE-RED-KARA-KITA'
-//   )
-//   .parse(process.argv)
 
 module.exports = function (RED) {
   'use strict'
-  function FleetSubscribeNode(config) {
+  function SubscribeNode(config) {
     RED.nodes.createNode(this, config)
-    var node = this
-    var util = new Sxutil()
-    var context = this.context().global
-
-    // get subscribe type
-    var subtype = config.subtype
-
-    console.log('config.subtype', config.subtype)
+    const node = this
+    const util = new Sxutil()
+    const context = this.context().global
+    // get subscribe info
+    const protcol = config.protcol
+    const subtype = config.subtype
+    const channel = util.getChannel(protcol)
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -42,20 +28,19 @@ module.exports = function (RED) {
       return
     }
 
+    // create node server client
     const nodesvClient = new util.nodeapi.Node(
-      // program.nodesrv,
       this.login.nodeserv,
       grpc.credentials.createInsecure()
     )
     const NodeType = Protobuf.Enum.fromDescriptor(util.nodeapi.NodeType.type)
-
-    node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     // connecting server
+    node.status({ fill: 'green', shape: 'dot', text: 'request...' })
     nodesvClient.RegisterNode(
       {
         node_name: this.login.hostname,
         node_type: NodeType.values.PROVIDER,
-        channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+        channelTypes: [util.getChannel(protcol)]
       },
       (err, resp) => {
         if (!err) {
@@ -66,11 +51,12 @@ module.exports = function (RED) {
           console.log('Server Info is ', resp.server_info)
           console.log('KeepAlive is ', resp.keepalive_duration)
 
+          // create sever client
           const client = util.synerexServerClient(resp)
 
           // get from context
-          var nodeResp = context.get('nodeResp')
-          var sxClient = context.get('sxServerClient')
+          let nodeResp = context.get('nodeResp')
+          let sxClient = context.get('sxServerClient')
 
           if (nodeResp && sxClient) {
             // if already have resp and client
@@ -92,27 +78,14 @@ module.exports = function (RED) {
       }
     )
 
-    node.on('close', function () {
-      node.status({})
-      context.set('nodeResp', undefined)
-      context.set('sxServerClient', undefined)
-      Keepalive.stopKeepAlive()
-    })
-
+    // Subscribe Logic
     function subscribe(client, node_id) {
-      var subscFunc
-      if (subtype == 'supply') {
-        subscFunc = util.fleetSubscribeSupply
-      } else {
-        subscFunc = util.fleetSubscribeDemand
-      }
-
-      subscFunc(client, node_id, function (err, success) {
+      util.subscribe(client, node_id, channel, subtype, function (err, success) {
         if (err) {
           console.log('error!')
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
         } else {
-          var result = {
+          let result = {
             coord: {
               lat: success.coord.lat,
               lon: success.coord.lon
@@ -126,6 +99,16 @@ module.exports = function (RED) {
         }
       })
     }
+
+    node.on('close', function () {
+      console.log('[CLOSE] =================')
+      let nodeResp = context.get('nodeResp')
+      util.unRegisterNode(nodesvClient, nodeResp)
+      node.status({})
+      context.set('nodeResp', undefined)
+      context.set('sxServerClient', undefined)
+      Keepalive.stopKeepAlive()
+    })
   }
-  RED.nodes.registerType('FleetSubscribe', FleetSubscribeNode)
+  RED.nodes.registerType('Subscribe', SubscribeNode)
 }

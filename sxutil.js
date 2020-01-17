@@ -37,6 +37,23 @@ const Fleet = fleetRoot.lookup('Fleet')
 const jsonRoot = Protobuf.loadSync(json_path)
 const JsonRecord = jsonRoot.lookup('JsonRecord')
 
+const CHANNEL = {
+  RIDE_SHARE: 1,
+  AD_SERVICE: 2,
+  LIB_SERVICE: 3,
+  PT_SERVICE: 4,
+  ROUTING_SERVICE: 5,
+  MARKETING_SERVICE: 6,
+  FLUENTD_SERVICE: 7,
+  MEETING_SERVICE: 8,
+  STORAGE_SERVICE: 9,
+  RETRIEVAL_SERVICE: 10,
+  PEOPLE_COUNTER_SVC: 11,
+  AREA_COUNTER_SVC: 12,
+  PEOPLE_AGENT_SVC: 13,
+  GEOGRAPHIC_SVC: 14
+}
+
 module.exports = class Sxutil {
   constructor() {
     this.nodeapi = nodeApiProto.nodeapi
@@ -77,32 +94,6 @@ module.exports = class Sxutil {
     })
   }
 
-  subscribeDemand(client, node_id) {
-    var ch = {
-      client_id: node_id,
-      channel_type: channel_RIDESHARE,
-      arg_json: 'Test...'
-    }
-
-    var call = client.SubscribeSupply(ch)
-
-    call.on('data', function (supply) {
-      console.log('==================')
-      console.log('receive Supply:', supply)
-      //        console.log("CDATA:",supply.cdata.entity);
-      var flt = Fleet.decode(supply.cdata.entity)
-      console.log(flt)
-      console.log('==================')
-    })
-    call.on('status', function (st) {
-      console.log('Subscribe Status', st)
-    })
-
-    call.on('end', function () {
-      console.log('Subscribe Done!')
-    })
-  }
-
   connectSynerexServer(resp) {
     console.log('Connecting synerex Server ', resp.server_info)
     const sClient = new this.synerexApi.Synerex(
@@ -129,68 +120,6 @@ module.exports = class Sxutil {
       grpc.credentials.createInsecure()
     )
     return sClient
-  }
-
-  /*
-   *  Json Actions
-   */
-
-  sendJsonNotifySupply(json, client, node_id) {
-    var jsonrc = JsonRecord.create({
-      json: json
-    })
-
-    console.log('Send json Info', jsonrc)
-
-    var buffer = JsonRecord.encode(jsonrc).finish()
-
-    // create snowflake id
-    var flakeIdGen = new FlakeId({ id: node_id })
-    var spid = intformat(flakeIdGen.next(), 'dec')
-
-    var sp = {
-      id: spid,
-      sendr_id: node_id,
-      channel_type: channel_STRAGE,
-      supply_name: 'RS Notify',
-      arg_json: '',
-      cdata: { entity: buffer }
-    }
-
-    client.NotifySupply(sp, (err, resp) => {
-      if (!err) {
-        console.log('Sent OK', resp)
-      } else {
-        console.log('error', err)
-      }
-    })
-  }
-
-  jsonSubscribeDemand(client, node_id) {
-    console.log('jsonSubscribeDemand =======================')
-    var ch = {
-      client_id: node_id,
-      channel_type: channel_STRAGE,
-      arg_json: 'Test...'
-    }
-
-    var call = client.SubscribeDemand(ch)
-
-    call.on('data', function (supply) {
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-      console.log('json receive Supply:', supply)
-      //        console.log("CDATA:",supply.cdata.entity);
-      var jsonRc = JsonRecord.decode(supply.cdata.entity)
-      console.log(jsonRc)
-      console.log('~~~~~~~~~~~~~~~~~~~~~~~~~~~')
-    })
-    call.on('status', function (st) {
-      console.log('Subscribe Status', st)
-    })
-
-    call.on('end', function () {
-      console.log('Subscribe Done!')
-    })
   }
 
   /*
@@ -261,7 +190,7 @@ module.exports = class Sxutil {
       }
     })
   }
-
+  /*
   fleetSubscribeDemand(client, node_id, callback) {
     var ch = {
       client_id: node_id,
@@ -271,7 +200,7 @@ module.exports = class Sxutil {
 
     var call = client.SubscribeDemand(ch)
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('==================')
       console.log('receive Supply:', supply)
       var flt = Fleet.decode(supply.cdata.entity)
@@ -279,11 +208,11 @@ module.exports = class Sxutil {
       console.log('==================')
       callback(null, flt)
     })
-    call.on('status', function (st) {
+    call.on('status', function(st) {
       console.log('Subscribe Status', st)
     })
 
-    call.on('end', function () {
+    call.on('end', function() {
       console.log('Subscribe Done!')
     })
   }
@@ -297,7 +226,7 @@ module.exports = class Sxutil {
 
     var call = client.SubscribeSupply(ch)
 
-    call.on('data', function (supply) {
+    call.on('data', function(supply) {
       console.log('==================')
       console.log('receive Supply:', supply)
       var flt = Fleet.decode(supply.cdata.entity)
@@ -306,6 +235,68 @@ module.exports = class Sxutil {
       console.log('==================')
       callback(null, flt)
     })
+    call.on('status', function(st) {
+      console.log('Subscribe Status', st)
+    })
+
+    call.on('end', function() {
+      console.log('Subscribe Done!')
+    })
+  }
+*/
+
+  unRegisterNode(client, resp) {
+    // hoo
+    console.log('resp', resp)
+  }
+
+  getChannel(protcol) {
+    var channel = 0
+    // set channel
+    switch (protcol) {
+      case 'fleet':
+        channel = CHANNEL.RIDE_SHARE
+        break
+
+      default:
+        channel = CHANNEL.RIDE_SHARE
+        break
+    }
+    return channel
+  }
+
+  subscribe(client, node_id, channel, subscType, callback) {
+    const ch = {
+      client_id: node_id,
+      channel_type: channel,
+      arg_json: 'Test...'
+    }
+
+    let call
+    if (subscType == 'supply') {
+      call = client.SubscribeSupply(ch)
+    } else {
+      call = client.SubscribeDemand(ch)
+    }
+
+    call.on('data', function (supply) {
+      console.log('==================')
+      console.log('receive Supply:', supply)
+      var decoded
+      switch (channel) {
+        case CHANNEL.RIDE_SHARE:
+          decoded = Fleet.decode(supply.cdata.entity)
+          break
+
+        default:
+          decoded = Fleet.decode(supply.cdata.entity)
+          break
+      }
+      decoded.timestamp = supply.ts
+      console.log(decoded)
+      console.log('==================')
+      callback(null, decoded)
+    })
     call.on('status', function (st) {
       console.log('Subscribe Status', st)
     })
@@ -313,10 +304,5 @@ module.exports = class Sxutil {
     call.on('end', function () {
       console.log('Subscribe Done!')
     })
-  }
-
-  unRegisterNode(client, resp) {
-    // hoo
-    console.log('resp', resp)
   }
 }

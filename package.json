@@ -35,11 +35,9 @@
   "node-red": {
     "nodes": {
       "sxutil": "./synerex/synerex.js",
-      "fleet-notify-supply": "./synerex/fleet/fleet-notify-supply.js",
-      "fleet-notify-demand": "./synerex/fleet/fleet-notify-demand.js",
-      "fleet-subscribe": "./synerex/fleet/fleet-subscribe.js",
-      "fleet-subscribe-supply": "./synerex/fleet/fleet-subscribe-supply.js",
-      "fleet-subscribe-demand": "./synerex/fleet/fleet-subscribe-demand.js"
+      "fleet-notify-supply": "./synerex/nodes/fleet-notify-supply.js",
+      "fleet-notify-demand": "./synerex/nodes/fleet-notify-demand.js",
+      "subscribe": "./synerex/nodes/subscribe.js"
     }
   },
   "author": "github_id:kuetsuhara",
