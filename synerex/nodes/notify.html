@@ -1,0 +1,54 @@
+<script type="text/javascript">
+  RED.nodes.registerType('Notify', {
+    category: 'Synerex',
+    color: '#FFFFFF',
+    defaults: {
+      name: { value: "" },
+      login: { type: "synerex-credentials" },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "synerex.png",
+    label: function () {
+      if (this.name) {
+        return this.name;
+      } else {
+        return "Notify";
+      }
+    },
+    labelStyle: function () {
+      return this.name ? "node_label_italic" : "";
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="Notify">
+  <div class="form-row">
+    <label for="node-input-login"><i class="fa fa-user"></i> Synerex info</label>
+    <input type="text" id="node-input-login">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-protcol"><i class="fa fa-tag"></i> Notify protcol</label>
+    <select id="node-input-protcol">
+      <option value="fleet">Fleet</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-nottype"><i class="fa fa-tag"></i> Notify type</label>
+    <select id="node-input-nottype">
+      <option value="supply">Supply</option>
+      <option value="demand">Demand</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="Notify">
+  <p>Notify</p>
+</script>
