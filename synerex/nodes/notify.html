@@ -4,6 +4,8 @@
     color: '#FFFFFF',
     defaults: {
       name: { value: "" },
+      protcol: { value: "fleet" },
+      nottype: { value: "supply" },
       login: { type: "synerex-credentials" },
     },
     inputs: 1,
@@ -13,7 +15,7 @@
       if (this.name) {
         return this.name;
       } else {
-        return "Notify";
+        return this.protcol + " notify " + this.nottype
       }
     },
     labelStyle: function () {

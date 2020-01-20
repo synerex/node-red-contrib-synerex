@@ -22,6 +22,11 @@ module.exports = function (RED) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
+    const context = this.context().global
+    // get subscribe info
+    const protcol = config.protcol
+    const nottype = config.nottype
+    const channel = util.getChannel(protcol)
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -34,6 +39,8 @@ module.exports = function (RED) {
       })
       node.error('No credentials specified')
       return
+    } else {
+      node.status({})
     }
 
     const nodesvClient = new util.nodeapi.Node(
@@ -46,7 +53,6 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       console.log('on here!')
       // get from global
-      var context = this.context()
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
 
@@ -56,15 +62,18 @@ module.exports = function (RED) {
         return
       }
 
+      node.status({ fill: 'green', shape: 'dot', text: 'request...' })
       // connecting server
       nodesvClient.RegisterNode(
         {
           node_name: this.login.hostname,
           node_type: NodeType.values.PROVIDER,
-          channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+          channelTypes: [channel]
+          // channelTypes: [channel_RIDESHARE] // RIDE_SHARE
         },
         (err, resp) => {
           if (!err) {
+            node.status({ fill: 'green', shape: 'dot', text: 'success' })
             console.log('NodeServer connect success!')
             console.log(resp)
             console.log('Node ID is ', resp.node_id)
@@ -79,6 +88,8 @@ module.exports = function (RED) {
 
             util.fleetNotifySupply(client, resp.node_id)
           } else {
+            node.status({ fill: 'red', shape: 'dot', text: 'error' })
+
             console.log('Error connecting NodeServ.')
             console.log(err)
           }
