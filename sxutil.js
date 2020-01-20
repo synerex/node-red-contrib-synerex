@@ -60,40 +60,6 @@ module.exports = class Sxutil {
     this.synerexApi = synerexApiProto.api
   }
 
-  sendNotifySupply(client, node_id) {
-    // we need to encode protocol
-    var flt = Fleet.create({
-      coord: { lat: 34.85, lon: 137.15 },
-      vehicle_id: 1,
-      angle: 160,
-      speed: 280
-    })
-
-    console.log('Send Fleet Info', flt)
-    var buffer = Fleet.encode(flt).finish()
-
-    // create snowflake id
-    var flakeIdGen = new FlakeId({ id: node_id })
-    var spid = intformat(flakeIdGen.next(), 'dec')
-
-    var sp = {
-      id: spid, // should use snowflake id
-      sendr_id: node_id,
-      channel_type: channel_RIDESHARE,
-      supply_name: 'RS Notify',
-      arg_json: '',
-      cdata: { entity: buffer }
-    }
-
-    client.NotifySupply(sp, (err, resp) => {
-      if (!err) {
-        console.log('Sent OK', resp)
-      } else {
-        console.log('error', err)
-      }
-    })
-  }
-
   connectSynerexServer(resp) {
     console.log('Connecting synerex Server ', resp.server_info)
     const sClient = new this.synerexApi.Synerex(
@@ -120,75 +86,6 @@ module.exports = class Sxutil {
       grpc.credentials.createInsecure()
     )
     return sClient
-  }
-
-  /*
-   *  Fleet Actins
-   */
-
-  fleetNotifySupply(client, node_id) {
-    // we need to encode protocol
-    var flt = Fleet.create({
-      coord: { lat: 99.85, lon: 199.15 },
-      vehicle_id: 1,
-      angle: 160,
-      speed: 280
-    })
-
-    console.log('Send Fleet Info', flt)
-    var flakeIdGen = new FlakeId({ id: node_id })
-    var spid = intformat(flakeIdGen.next(), 'dec')
-
-    var buffer = Fleet.encode(flt).finish()
-    var sp = {
-      id: spid, // should use snowflake id..
-      sendr_id: node_id,
-      channel_type: channel_RIDESHARE,
-      supply_name: 'RS Notify',
-      arg_json: '',
-      cdata: { entity: buffer }
-    }
-    console.log('===========::', sp)
-
-    client.NotifySupply(sp, (err, resp) => {
-      if (!err) {
-        console.log('Sent OK', resp)
-      } else {
-        console.log('error', err)
-      }
-    })
-  }
-
-  fleetNotifyDemand(client, node_id) {
-    var flt = Fleet.create({
-      coord: { lat: 55.55, lon: 155.55 },
-      vehicle_id: 1,
-      angle: 150,
-      speed: 250
-    })
-
-    console.log('fleetNotifyDemand', flt)
-    // const uid = new UniqueID()
-    var flakeIdGen = new FlakeId({ id: node_id })
-    var spid = intformat(flakeIdGen.next(), 'dec')
-
-    var buffer = Fleet.encode(flt).finish()
-    var sp = {
-      id: spid, // should use snowflake id..
-      sendr_id: node_id,
-      channel_type: channel_RIDESHARE,
-      supply_name: 'RS Notify',
-      arg_json: '',
-      cdata: { entity: buffer }
-    }
-
-    client.NotifyDemand(sp, (err, resp) => {
-      if (!err) {
-        console.log('NotifyDemand Sent OK', resp)
-      } else {
-        console.log('NotifyDemand error', err)
-      }
-    })
   }
 
   unRegisterNode(client, resp) {
@@ -260,12 +157,6 @@ module.exports = class Sxutil {
 
     switch (channel) {
       case CHANNEL.RIDE_SHARE:
-        // notifData = Fleet.create({
-        //   coord: { lat: 99.85, lon: 199.15 },
-        //   vehicle_id: 1,
-        //   angle: 160,
-        //   speed: 280
-        // })
         notifData = Fleet.create(sendData)
         buffer = Fleet.encode(notifData).finish()
         break
