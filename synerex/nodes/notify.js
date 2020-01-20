@@ -1,20 +1,7 @@
 const Sxutil = require('../../sxutil.js')
-
+const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
-const program = require('commander')
 const Protobuf = require('protobufjs')
-
-const channel_RIDESHARE = 1 // should read from synerex_proto .
-
-program
-  .version('1.0.0')
-  .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-  .option(
-    '-n, --hostname [name]',
-    'Hostname for provider',
-    'NODE-RED-KARA-KITA'
-  )
-  .parse(process.argv)
 
 module.exports = function (RED) {
   'use strict'
@@ -51,14 +38,15 @@ module.exports = function (RED) {
 
     // Input Action
     node.on('input', function (msg) {
-      console.log('on here!')
       // get from global
+      console.log('payload :: ', msg.payload)
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
 
       if (nodeResp && sxClient) {
         console.log('has context!!! ============')
-        util.fleetNotifySupply(sxClient, nodeResp.node_id)
+        util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
+        Keepalive.startKeepAlive(nodesvClient, nodeResp)
         return
       }
 
@@ -69,7 +57,6 @@ module.exports = function (RED) {
           node_name: this.login.hostname,
           node_type: NodeType.values.PROVIDER,
           channelTypes: [channel]
-          // channelTypes: [channel_RIDESHARE] // RIDE_SHARE
         },
         (err, resp) => {
           if (!err) {
@@ -81,15 +68,14 @@ module.exports = function (RED) {
             console.log('KeepAlive is ', resp.keepalive_duration)
 
             const client = util.synerexServerClient(resp)
-
             // set context
             context.set('nodeResp', resp)
             context.set('sxServerClient', client)
 
-            util.fleetNotifySupply(client, resp.node_id)
+            util.notify(client, resp.node_id, channel, nottype, msg.payload)
+            Keepalive.startKeepAlive(nodesvClient, resp)
           } else {
             node.status({ fill: 'red', shape: 'dot', text: 'error' })
-
             console.log('Error connecting NodeServ.')
             console.log(err)
           }
@@ -97,7 +83,12 @@ module.exports = function (RED) {
       )
     })
     node.on('close', function () {
-      console.log('close')
+      let nodeResp = context.get('nodeResp')
+      util.unRegisterNode(nodesvClient, nodeResp)
+      node.status({})
+      context.set('nodeResp', undefined)
+      context.set('sxServerClient', undefined)
+      Keepalive.stopKeepAlive()
     })
   }
   RED.nodes.registerType('Notify', NotifyNode)
