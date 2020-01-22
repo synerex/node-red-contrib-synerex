@@ -38,9 +38,12 @@ const Fleet = fleetRoot.lookup('Fleet')
 // fluentd
 const fluentdRoot = Protobuf.loadSync(fluentd_path)
 const Fluentd = fluentdRoot.lookup('FluentdRecord')
-
+// geography
 const geographyRoot = Protobuf.loadSync(geography_path)
-const Geography = geographyRoot.lookup()
+const Geography = geographyRoot.lookup('Geo')
+// ptransit
+const ptransitRoot = Protobuf.loadSync(ptransit_path)
+const Ptransit = ptransitRoot.lookup('PTService')
 
 const jsonRoot = Protobuf.loadSync(json_path)
 const JsonRecord = jsonRoot.lookup('JsonRecord')
@@ -108,9 +111,47 @@ module.exports = class Sxutil {
       case 'fleet':
         channel = CHANNEL.RIDE_SHARE
         break
-
+      case 'ad':
+        channel = CHANNEL.AD_SERVICE
+        break
+      case 'lib':
+        channel = CHANNEL.LIB_SERVICE
+        break
+      case 'ptransit':
+        channel = CHANNEL.PT_SERVICE
+        break
+      case 'routing':
+        channel = CHANNEL.ROUTING_SERVICE
+        break
+      case 'marketing':
+        channel = CHANNEL.MARKETING_SERVICE
+        break
+      case 'fluentd':
+        channel = CHANNEL.FLUENTD_SERVICE
+        break
+      case 'meeting':
+        channel = CHANNEL.MEETING_SERVICE
+        break
+      case 'strage':
+        channel = CHANNEL.STORAGE_SERVICE
+        break
+      case 'retrieval':
+        channel = CHANNEL.RETRIEVAL_SERVICE
+        break
+      case 'pcounter':
+        channel = CHANNEL.PEOPLE_COUNTER_SVC
+        break
+      case 'area':
+        channel = CHANNEL.AREA_COUNTER_SVC
+        break
+      case 'pagent':
+        channel = CHANNEL.PEOPLE_AGENT_SVC
+        break
+      case 'geography':
+        channel = CHANNEL.GEOGRAPHIC_SVC
+        break
       default:
-        channel = CHANNEL.RIDE_SHARE
+        channel = 0
         break
     }
     return channel
@@ -140,20 +181,25 @@ module.exports = class Sxutil {
           break
 
         case CHANNEL.FLUENTD_SERVICE:
+          console.log('FLUENTD_SERVICE')
           decoded = Fluentd.decode(supply.cdata.entity)
           break
 
         case CHANNEL.PT_SERVICE:
+          console.log('PT_SERVICE')
+          decoded = Ptransit.decode(supply.cdata.entity)
           break
 
-        case CHANNEL.PEOPLE_AGENT_SVC:
-          break
+        // case CHANNEL.PEOPLE_AGENT_SVC:
+        //   break
 
         case CHANNEL.GEOGRAPHIC_SVC:
+          console.log('GEOGRAPHIC_SVC')
+          decoded = Geography.decode(supply.cdata.entity)
           break
 
         default:
-          decoded = Fleet.decode(supply.cdata.entity)
+          decoded = undefined
           break
       }
       decoded.timestamp = supply.ts
