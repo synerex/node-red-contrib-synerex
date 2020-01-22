@@ -1,27 +1,19 @@
 const Sxutil = require('../../sxutil.js')
-
+const Keepalive = require('../../keepalive.js')
 const grpc = require('grpc')
-const program = require('commander')
 const Protobuf = require('protobufjs')
-
-const channel_RIDESHARE = 1 // should read from synerex_proto .
-
-program
-  .version('1.0.0')
-  .option('-s, --nodesrv [address]', 'Node ID Server', '127.0.0.1:9990')
-  .option(
-    '-n, --hostname [name]',
-    'Hostname for provider',
-    'NODE-RED-KARA-KITA'
-  )
-  .parse(process.argv)
 
 module.exports = function (RED) {
   'use strict'
-  function FleetNotifySupplyNode(config) {
+  function NotifyNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
+    const context = this.context().global
+    // get subscribe info
+    const protcol = config.protcol
+    const nottype = config.nottype
+    const channel = util.getChannel(protcol)
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -34,6 +26,8 @@ module.exports = function (RED) {
       })
       node.error('No credentials specified')
       return
+    } else {
+      node.status({})
     }
 
     const nodesvClient = new util.nodeapi.Node(
@@ -44,27 +38,29 @@ module.exports = function (RED) {
 
     // Input Action
     node.on('input', function (msg) {
-      console.log('on here!')
       // get from global
-      var context = this.context()
+      console.log('payload :: ', msg.payload)
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
 
       if (nodeResp && sxClient) {
         console.log('has context!!! ============')
-        util.fleetNotifySupply(sxClient, nodeResp.node_id)
+        util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
+        Keepalive.startKeepAlive(nodesvClient, nodeResp)
         return
       }
 
+      node.status({ fill: 'green', shape: 'dot', text: 'request...' })
       // connecting server
       nodesvClient.RegisterNode(
         {
           node_name: this.login.hostname,
           node_type: NodeType.values.PROVIDER,
-          channelTypes: [channel_RIDESHARE] // RIDE_SHARE
+          channelTypes: [channel]
         },
         (err, resp) => {
           if (!err) {
+            node.status({ fill: 'green', shape: 'dot', text: 'success' })
             console.log('NodeServer connect success!')
             console.log(resp)
             console.log('Node ID is ', resp.node_id)
@@ -72,13 +68,14 @@ module.exports = function (RED) {
             console.log('KeepAlive is ', resp.keepalive_duration)
 
             const client = util.synerexServerClient(resp)
-
             // set context
             context.set('nodeResp', resp)
             context.set('sxServerClient', client)
 
-            util.fleetNotifySupply(client, resp.node_id)
+            util.notify(client, resp.node_id, channel, nottype, msg.payload)
+            Keepalive.startKeepAlive(nodesvClient, resp)
           } else {
+            node.status({ fill: 'red', shape: 'dot', text: 'error' })
             console.log('Error connecting NodeServ.')
             console.log(err)
           }
@@ -86,8 +83,13 @@ module.exports = function (RED) {
       )
     })
     node.on('close', function () {
-      console.log('close')
+      let nodeResp = context.get('nodeResp')
+      util.unRegisterNode(nodesvClient, nodeResp)
+      node.status({})
+      context.set('nodeResp', undefined)
+      context.set('sxServerClient', undefined)
+      Keepalive.stopKeepAlive()
     })
   }
-  RED.nodes.registerType('FleetNotifySupply', FleetNotifySupplyNode)
+  RED.nodes.registerType('Notify', NotifyNode)
 }
