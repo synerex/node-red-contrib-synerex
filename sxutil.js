@@ -29,7 +29,6 @@ const synerexApiDefinition = protoLoader.loadSync(api_path, {
 })
 
 const synerexApiProto = grpc.loadPackageDefinition(synerexApiDefinition)
-// const synerexApi = synerexApiProto.api
 
 const fleetRoot = Protobuf.loadSync(fleet_path)
 const Fleet = fleetRoot.lookup('Fleet')
@@ -196,6 +195,24 @@ module.exports = class Sxutil {
           console.log('NotifyDemand error', err)
         }
       })
+    }
+  }
+
+  select(client, node_id, targetId, seltype) {
+    const target = {
+      id: 1,
+      sender_id: node_id,
+      target_id: targetId,
+      channel_type: 1,
+      mbus_id: 1
+    }
+
+    console.log(target)
+
+    if (seltype == 'supply') {
+      client.SelectSupply(target)
+    } else {
+      client.SelectDemand(target)
     }
   }
 }
