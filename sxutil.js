@@ -3,11 +3,12 @@ const protoLoader = require('@grpc/proto-loader')
 const Protobuf = require('protobufjs')
 const FlakeId = require('flake-idgen')
 const intformat = require('biguint-format')
-const channel_RIDESHARE = 1 // should read from synerex_proto .
-const channel_STRAGE = 9 // temp json
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
+const fluentd_path = __dirname + '/synerex_proto/fleet/fluentd.proto'
+const geography_path = __dirname + '/synerex_proto/fleet/geography.proto'
+const ptransit_path = __dirname + '/synerex_proto/fleet/ptransit.proto'
 const json_path = __dirname + '/proto_json/json.proto'
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
@@ -31,8 +32,15 @@ const synerexApiDefinition = protoLoader.loadSync(api_path, {
 const synerexApiProto = grpc.loadPackageDefinition(synerexApiDefinition)
 // const synerexApi = synerexApiProto.api
 
+// Fleet
 const fleetRoot = Protobuf.loadSync(fleet_path)
 const Fleet = fleetRoot.lookup('Fleet')
+// fluentd
+const fluentdRoot = Protobuf.loadSync(fluentd_path)
+const Fluentd = fluentdRoot.lookup('FluentdRecord')
+
+const geographyRoot = Protobuf.loadSync(geography_path)
+const Geography = geographyRoot.lookup()
 
 const jsonRoot = Protobuf.loadSync(json_path)
 const JsonRecord = jsonRoot.lookup('JsonRecord')
@@ -129,6 +137,19 @@ module.exports = class Sxutil {
       switch (channel) {
         case CHANNEL.RIDE_SHARE:
           decoded = Fleet.decode(supply.cdata.entity)
+          break
+
+        case CHANNEL.FLUENTD_SERVICE:
+          decoded = Fluentd.decode(supply.cdata.entity)
+          break
+
+        case CHANNEL.PT_SERVICE:
+          break
+
+        case CHANNEL.PEOPLE_AGENT_SVC:
+          break
+
+        case CHANNEL.GEOGRAPHIC_SVC:
           break
 
         default:
