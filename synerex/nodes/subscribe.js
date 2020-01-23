@@ -119,8 +119,15 @@ module.exports = function (RED) {
                 speed: success.speed,
                 timestamp: success.timestamp
               }
-
               break
+
+            case util.CHANNEL.PEOPLE_AGENT_SVC:
+              result = {
+                id: success.id,
+                point: success.point
+              }
+              break
+
             case util.CHANNEL.GEOGRAPHIC_SVC:
               result = {
                 type: success.type,
