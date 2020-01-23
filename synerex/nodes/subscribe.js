@@ -86,11 +86,10 @@ module.exports = function (RED) {
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
         } else {
           console.log('success :: ', success)
-          // TODO:: formatter!!!!
+          // TODO:: formatter -> to util
           let result
           switch (channel) {
             case util.CHANNEL.RIDE_SHARE:
-              console.log('ride share!')
               result = {
                 coord: {
                   lat: success.coord.lat,
@@ -103,7 +102,6 @@ module.exports = function (RED) {
               }
               break
             case util.CHANNEL.FLUENTD_SERVICE:
-              console.log('FLUENTD_SERVICE!')
               result = {
                 tag: success.tag,
                 time: success.time,
@@ -112,7 +110,6 @@ module.exports = function (RED) {
               }
               break
             case util.CHANNEL.PT_SERVICE:
-              console.log('PT_SERVICE!!')
               result = {
                 coord: {
                   lat: success.lat,
@@ -125,7 +122,6 @@ module.exports = function (RED) {
 
               break
             case util.CHANNEL.GEOGRAPHIC_SVC:
-              console.log('GEOGRAPHIC_SVC!')
               result = {
                 type: success.type,
                 id: success.id,
