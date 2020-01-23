@@ -3,12 +3,13 @@ const protoLoader = require('@grpc/proto-loader')
 const Protobuf = require('protobufjs')
 const FlakeId = require('flake-idgen')
 const intformat = require('biguint-format')
-const channel_RIDESHARE = 1 // should read from synerex_proto .
-const channel_STRAGE = 9 // temp json
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
-const json_path = __dirname + '/proto_json/json.proto'
+const fluentd_path = __dirname + '/synerex_proto/fluentd/fluentd.proto'
+const geography_path = __dirname + '/synerex_proto/geography/geography.proto'
+const ptransit_path = __dirname + '/synerex_proto/ptransit/ptransit.proto'
+// const json_path = __dirname + '/proto_json/json.proto'
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
   keepCase: true,
@@ -31,11 +32,21 @@ const synerexApiDefinition = protoLoader.loadSync(api_path, {
 const synerexApiProto = grpc.loadPackageDefinition(synerexApiDefinition)
 // const synerexApi = synerexApiProto.api
 
+// Fleet
 const fleetRoot = Protobuf.loadSync(fleet_path)
 const Fleet = fleetRoot.lookup('Fleet')
+// fluentd
+const fluentdRoot = Protobuf.loadSync(fluentd_path)
+const Fluentd = fluentdRoot.lookup('FluentdRecord')
+// geography
+const geographyRoot = Protobuf.loadSync(geography_path)
+const Geography = geographyRoot.lookup('Geo')
+// ptransit
+const ptransitRoot = Protobuf.loadSync(ptransit_path)
+const Ptransit = ptransitRoot.lookup('PTService')
 
-const jsonRoot = Protobuf.loadSync(json_path)
-const JsonRecord = jsonRoot.lookup('JsonRecord')
+// const jsonRoot = Protobuf.loadSync(json_path)
+// const JsonRecord = jsonRoot.lookup('JsonRecord')
 
 const CHANNEL = {
   RIDE_SHARE: 1,
@@ -58,6 +69,7 @@ module.exports = class Sxutil {
   constructor() {
     this.nodeapi = nodeApiProto.nodeapi
     this.synerexApi = synerexApiProto.api
+    this.CHANNEL = CHANNEL
   }
 
   connectSynerexServer(resp) {
@@ -100,9 +112,47 @@ module.exports = class Sxutil {
       case 'fleet':
         channel = CHANNEL.RIDE_SHARE
         break
-
+      case 'ad':
+        channel = CHANNEL.AD_SERVICE
+        break
+      case 'lib':
+        channel = CHANNEL.LIB_SERVICE
+        break
+      case 'ptransit':
+        channel = CHANNEL.PT_SERVICE
+        break
+      case 'routing':
+        channel = CHANNEL.ROUTING_SERVICE
+        break
+      case 'marketing':
+        channel = CHANNEL.MARKETING_SERVICE
+        break
+      case 'fluentd':
+        channel = CHANNEL.FLUENTD_SERVICE
+        break
+      case 'meeting':
+        channel = CHANNEL.MEETING_SERVICE
+        break
+      case 'strage':
+        channel = CHANNEL.STORAGE_SERVICE
+        break
+      case 'retrieval':
+        channel = CHANNEL.RETRIEVAL_SERVICE
+        break
+      case 'pcounter':
+        channel = CHANNEL.PEOPLE_COUNTER_SVC
+        break
+      case 'area':
+        channel = CHANNEL.AREA_COUNTER_SVC
+        break
+      case 'pagent':
+        channel = CHANNEL.PEOPLE_AGENT_SVC
+        break
+      case 'geography':
+        channel = CHANNEL.GEOGRAPHIC_SVC
+        break
       default:
-        channel = CHANNEL.RIDE_SHARE
+        channel = 0
         break
     }
     return channel
@@ -131,8 +181,23 @@ module.exports = class Sxutil {
           decoded = Fleet.decode(supply.cdata.entity)
           break
 
+        case CHANNEL.FLUENTD_SERVICE:
+          console.log('FLUENTD_SERVICE')
+          decoded = Fluentd.decode(supply.cdata.entity)
+          break
+
+        case CHANNEL.PT_SERVICE:
+          console.log('PT_SERVICE')
+          decoded = Ptransit.decode(supply.cdata.entity)
+          break
+
+        case CHANNEL.GEOGRAPHIC_SVC:
+          console.log('GEOGRAPHIC_SVC')
+          decoded = Geography.decode(supply.cdata.entity)
+          break
+
         default:
-          decoded = Fleet.decode(supply.cdata.entity)
+          decoded = undefined
           break
       }
       decoded.timestamp = supply.ts
@@ -155,15 +220,31 @@ module.exports = class Sxutil {
     let notifData
     let buffer
 
+    console.log('channel:: ', channel)
+
     switch (channel) {
       case CHANNEL.RIDE_SHARE:
         notifData = Fleet.create(sendData)
         buffer = Fleet.encode(notifData).finish()
         break
 
+      case CHANNEL.FLUENTD_SERVICE:
+        notifData = Fluentd.create(sendData)
+        buffer = Fluentd.encode(notifData).finish()
+        break
+
+      case CHANNEL.PT_SERVICE:
+        notifData = Ptransit.create(sendData)
+        buffer = Ptransit.encode(notifData).finish()
+        break
+
+      case CHANNEL.GEOGRAPHIC_SVC:
+        notifData = Geography.create(sendData)
+        buffer = Geography.encode(notifData).finish()
+        break
+
       default:
-        notifData = undefined
-        buffer = Fleet.encode(notifData).finish()
+        buffer = undefined
         break
     }
 
