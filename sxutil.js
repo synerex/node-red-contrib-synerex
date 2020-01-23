@@ -6,10 +6,10 @@ const intformat = require('biguint-format')
 const api_path = __dirname + '/synerex_api/synerex.proto'
 const nodeapi_path = __dirname + '/synerex_nodeapi/nodeapi.proto'
 const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
-const fluentd_path = __dirname + '/synerex_proto/fleet/fluentd.proto'
-const geography_path = __dirname + '/synerex_proto/fleet/geography.proto'
-const ptransit_path = __dirname + '/synerex_proto/fleet/ptransit.proto'
-const json_path = __dirname + '/proto_json/json.proto'
+const fluentd_path = __dirname + '/synerex_proto/fluentd/fluentd.proto'
+const geography_path = __dirname + '/synerex_proto/geography/geography.proto'
+const ptransit_path = __dirname + '/synerex_proto/ptransit/ptransit.proto'
+// const json_path = __dirname + '/proto_json/json.proto'
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
   keepCase: true,
@@ -45,8 +45,8 @@ const Geography = geographyRoot.lookup('Geo')
 const ptransitRoot = Protobuf.loadSync(ptransit_path)
 const Ptransit = ptransitRoot.lookup('PTService')
 
-const jsonRoot = Protobuf.loadSync(json_path)
-const JsonRecord = jsonRoot.lookup('JsonRecord')
+// const jsonRoot = Protobuf.loadSync(json_path)
+// const JsonRecord = jsonRoot.lookup('JsonRecord')
 
 const CHANNEL = {
   RIDE_SHARE: 1,
@@ -69,6 +69,7 @@ module.exports = class Sxutil {
   constructor() {
     this.nodeapi = nodeApiProto.nodeapi
     this.synerexApi = synerexApiProto.api
+    this.CHANNEL = CHANNEL
   }
 
   connectSynerexServer(resp) {
@@ -190,9 +191,6 @@ module.exports = class Sxutil {
           decoded = Ptransit.decode(supply.cdata.entity)
           break
 
-        // case CHANNEL.PEOPLE_AGENT_SVC:
-        //   break
-
         case CHANNEL.GEOGRAPHIC_SVC:
           console.log('GEOGRAPHIC_SVC')
           decoded = Geography.decode(supply.cdata.entity)
@@ -222,15 +220,31 @@ module.exports = class Sxutil {
     let notifData
     let buffer
 
+    console.log('channel:: ', channel)
+
     switch (channel) {
       case CHANNEL.RIDE_SHARE:
         notifData = Fleet.create(sendData)
         buffer = Fleet.encode(notifData).finish()
         break
 
+      case CHANNEL.FLUENTD_SERVICE:
+        notifData = Fluentd.create(sendData)
+        buffer = Fluentd.encode(notifData).finish()
+        break
+
+      case CHANNEL.PT_SERVICE:
+        notifData = Ptransit.create(sendData)
+        buffer = Ptransit.encode(notifData).finish()
+        break
+
+      case CHANNEL.GEOGRAPHIC_SVC:
+        notifData = Geography.create(sendData)
+        buffer = Geography.encode(notifData).finish()
+        break
+
       default:
-        notifData = undefined
-        buffer = Fleet.encode(notifData).finish()
+        buffer = undefined
         break
     }
 
