@@ -9,6 +9,8 @@ const fleet_path = __dirname + '/synerex_proto/fleet/fleet.proto'
 const fluentd_path = __dirname + '/synerex_proto/fluentd/fluentd.proto'
 const geography_path = __dirname + '/synerex_proto/geography/geography.proto'
 const ptransit_path = __dirname + '/synerex_proto/ptransit/ptransit.proto'
+const pagent_path = __dirname + '/proto_people_agent/pagent.proto'
+
 // const json_path = __dirname + '/proto_json/json.proto'
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
@@ -44,6 +46,9 @@ const Geography = geographyRoot.lookup('Geo')
 // ptransit
 const ptransitRoot = Protobuf.loadSync(ptransit_path)
 const Ptransit = ptransitRoot.lookup('PTService')
+// pagent
+const pagentRoot = Protobuf.loadSync(pagent_path)
+const Pagent = pagentRoot.lookup('PAgent')
 
 // const jsonRoot = Protobuf.loadSync(json_path)
 // const JsonRecord = jsonRoot.lookup('JsonRecord')
@@ -182,17 +187,19 @@ module.exports = class Sxutil {
           break
 
         case CHANNEL.FLUENTD_SERVICE:
-          console.log('FLUENTD_SERVICE')
           decoded = Fluentd.decode(supply.cdata.entity)
           break
 
         case CHANNEL.PT_SERVICE:
-          console.log('PT_SERVICE')
           decoded = Ptransit.decode(supply.cdata.entity)
           break
 
+        case CHANNEL.PEOPLE_AGENT_SVC:
+          console.log('PEOPLE_AGENT_SVC')
+          decoded = Pagent.decode(supply.cdata.entity)
+          break
+
         case CHANNEL.GEOGRAPHIC_SVC:
-          console.log('GEOGRAPHIC_SVC')
           decoded = Geography.decode(supply.cdata.entity)
           break
 
@@ -236,6 +243,11 @@ module.exports = class Sxutil {
       case CHANNEL.PT_SERVICE:
         notifData = Ptransit.create(sendData)
         buffer = Ptransit.encode(notifData).finish()
+        break
+
+      case CHANNEL.PEOPLE_AGENT_SVC:
+        notifData = Pagent.create(sendData)
+        buffer = Pagent.encode(notifData).finish()
         break
 
       case CHANNEL.GEOGRAPHIC_SVC:
