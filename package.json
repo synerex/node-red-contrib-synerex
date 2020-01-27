@@ -36,7 +36,8 @@
     "nodes": {
       "sxutil": "./synerex/synerex.js",
       "subscribe": "./synerex/nodes/subscribe.js",
-      "notify": "./synerex/nodes/notify.js"
+      "notify": "./synerex/nodes/notify.js",
+      "select": "./synerex/nodes/select.js"
     }
   },
   "author": "github_id:kuetsuhara",

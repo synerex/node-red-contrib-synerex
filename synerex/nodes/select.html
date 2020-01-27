@@ -1,0 +1,48 @@
+<script type="text/javascript">
+  RED.nodes.registerType('Select', {
+    category: 'Synerex',
+    color: '#FFFFFF',
+    defaults: {
+      name: { value: "" },
+      seltype: { value: "supply" },
+      login: { type: "synerex-credentials" },
+    },
+    inputs: 1,
+    outputs: 1,
+    icon: "synerex.png",
+    label: function () {
+      if (this.name) {
+        return this.name;
+      } else {
+        return " select " + this.seltype
+      }
+    },
+    labelStyle: function () {
+      return this.name ? "node_label_italic" : "";
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="Select">
+  <div class="form-row">
+    <label for="node-input-login"><i class="fa fa-user"></i> Synerex info</label>
+    <input type="text" id="node-input-login">
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-seltype"><i class="fa fa-tag"></i> Select type</label>
+    <select id="node-input-seltype">
+      <option value="supply">Supply</option>
+      <option value="demand">Demand</option>
+    </select>
+  </div>
+
+  <div class="form-row">
+    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+</script>
+
+<script type="text/x-red" data-help-name="Select">
+  <p>Select</p>
+</script>
