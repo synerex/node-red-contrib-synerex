@@ -195,7 +195,6 @@ module.exports = class Sxutil {
           break
 
         case CHANNEL.PEOPLE_AGENT_SVC:
-          console.log('PEOPLE_AGENT_SVC')
           decoded = Pagent.decode(supply.cdata.entity)
           break
 
@@ -222,12 +221,8 @@ module.exports = class Sxutil {
   }
 
   notify(client, node_id, channel, notifyType, sendData) {
-    // we need to encode protocol
-
     let notifData
     let buffer
-
-    console.log('channel:: ', channel)
 
     switch (channel) {
       case CHANNEL.RIDE_SHARE:
