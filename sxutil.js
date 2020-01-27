@@ -195,7 +195,6 @@ module.exports = class Sxutil {
           break
 
         case CHANNEL.PEOPLE_AGENT_SVC:
-          console.log('PEOPLE_AGENT_SVC')
           decoded = Pagent.decode(supply.cdata.entity)
           break
 
@@ -222,12 +221,8 @@ module.exports = class Sxutil {
   }
 
   notify(client, node_id, channel, notifyType, sendData) {
-    // we need to encode protocol
-
     let notifData
     let buffer
-
-    console.log('channel:: ', channel)
 
     switch (channel) {
       case CHANNEL.RIDE_SHARE:
@@ -290,5 +285,64 @@ module.exports = class Sxutil {
         }
       })
     }
+  }
+
+  subscribeFormatter(channel, successData) {
+    let result
+    switch (channel) {
+      case this.CHANNEL.RIDE_SHARE:
+        result = {
+          coord: {
+            lat: successData.coord.lat,
+            lon: successData.coord.lon
+          },
+          angle: successData.angle,
+          speed: successData.speed,
+          vehicleId: successData.vehicleId,
+          timestamp: successData.timestamp
+        }
+        break
+      case this.CHANNEL.FLUENTD_SERVICE:
+        result = {
+          tag: successData.tag,
+          time: successData.time,
+          record: successData.record,
+          timestamp: successData.timestamp
+        }
+        break
+      case this.CHANNEL.PT_SERVICE:
+        result = {
+          coord: {
+            lat: successData.lat,
+            lon: successData.lon
+          },
+          angle: successData.angle,
+          speed: successData.speed,
+          timestamp: successData.timestamp
+        }
+        break
+
+      case this.CHANNEL.PEOPLE_AGENT_SVC:
+        result = {
+          id: successData.id,
+          point: successData.point
+        }
+        break
+
+      case this.CHANNEL.GEOGRAPHIC_SVC:
+        result = {
+          type: successData.type,
+          id: successData.id,
+          label: successData.label,
+          data: successData.data,
+          options: successData.options,
+          timestamp: successData.timestamp
+        }
+        break
+
+      default:
+        break
+    }
+    return result
   }
 }

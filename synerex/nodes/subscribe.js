@@ -86,64 +86,7 @@ module.exports = function (RED) {
           node.status({ fill: 'red', shape: 'dot', text: 'error' })
         } else {
           console.log('success :: ', success)
-          // TODO:: formatter -> to util
-          let result
-          switch (channel) {
-            case util.CHANNEL.RIDE_SHARE:
-              result = {
-                coord: {
-                  lat: success.coord.lat,
-                  lon: success.coord.lon
-                },
-                angle: success.angle,
-                speed: success.speed,
-                vehicleId: success.vehicleId,
-                timestamp: success.timestamp
-              }
-              break
-            case util.CHANNEL.FLUENTD_SERVICE:
-              result = {
-                tag: success.tag,
-                time: success.time,
-                record: success.record,
-                timestamp: success.timestamp
-              }
-              break
-            case util.CHANNEL.PT_SERVICE:
-              result = {
-                coord: {
-                  lat: success.lat,
-                  lon: success.lon
-                },
-                angle: success.angle,
-                speed: success.speed,
-                timestamp: success.timestamp
-              }
-              break
-
-            case util.CHANNEL.PEOPLE_AGENT_SVC:
-              result = {
-                id: success.id,
-                point: success.point
-              }
-              break
-
-            case util.CHANNEL.GEOGRAPHIC_SVC:
-              result = {
-                type: success.type,
-                id: success.id,
-                label: success.label,
-                data: success.data,
-                options: success.options,
-                timestamp: success.timestamp
-              }
-              break
-
-            default:
-              break
-          }
-
-          node.send({ payload: result })
+          node.send({ payload: util.subscribeFormatter(channel, success) })
         }
       })
     }
