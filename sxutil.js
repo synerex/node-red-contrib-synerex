@@ -105,11 +105,6 @@ module.exports = class Sxutil {
     return sClient
   }
 
-  unRegisterNode(client, resp) {
-    // hoo
-    console.log('resp', resp)
-  }
-
   getChannel(protcol) {
     var channel = 0
     // set channel
@@ -344,5 +339,26 @@ module.exports = class Sxutil {
         break
     }
     return result
+  }
+
+  unRegisterNode(nodeServClient, resp) {
+    return new Promise((resolve, reject) => {
+      console.log('unRegisterNode', resp)
+      if (resp) {
+        let nodeid = {
+          node_id: resp.node_id,
+          secret: resp.secret,
+          server_info: resp.server_info,
+          keepalive_duration: resp.keepalive_duration
+        }
+        nodeServClient.UnRegisterNode(nodeid, (err, resp) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(resp)
+          }
+        })
+      }
+    })
   }
 }
