@@ -344,19 +344,21 @@ module.exports = class Sxutil {
   unRegisterNode(nodeServClient, resp) {
     return new Promise((resolve, reject) => {
       console.log('unRegisterNode', resp)
-      let nodeid = {
-        node_id: resp.node_id,
-        secret: resp.secret,
-        server_info: resp.server_info,
-        keepalive_duration: resp.keepalive_duration
-      }
-      nodeServClient.UnRegisterNode(nodeid, (err, resp) => {
-        if (err) {
-          reject(err)
-        } else {
-          resolve(resp)
+      if (resp) {
+        let nodeid = {
+          node_id: resp.node_id,
+          secret: resp.secret,
+          server_info: resp.server_info,
+          keepalive_duration: resp.keepalive_duration
         }
-      })
+        nodeServClient.UnRegisterNode(nodeid, (err, resp) => {
+          if (err) {
+            reject(err)
+          } else {
+            resolve(resp)
+          }
+        })
+      }
     })
   }
 }
