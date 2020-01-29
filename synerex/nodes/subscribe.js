@@ -89,6 +89,20 @@ module.exports = function (RED) {
           node.send({ payload: util.subscribeFormatter(channel, success) })
         }
       })
+
+      setTimeout(unregi, 5000)
+    }
+
+    function unregi() {
+      let nodeResp = context.get('nodeResp')
+      util.unRegisterNode(nodesvClient, nodeResp).then(
+        function (data) {
+          console.log('unRegisterNode SUCESS', data)
+        },
+        function (err) {
+          console.log('unRegisterNode ERROR', err)
+        }
+      )
     }
 
     node.on('close', function () {
