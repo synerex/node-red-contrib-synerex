@@ -158,7 +158,7 @@ module.exports = class Sxutil {
     return channel
   }
 
-  subscribe(client, node_id, channel, subscType, callback) {
+  subscribe(sxServClient, node_id, channel, subscType, callback) {
     const ch = {
       client_id: node_id,
       channel_type: channel,
@@ -167,9 +167,9 @@ module.exports = class Sxutil {
 
     let call
     if (subscType == 'supply') {
-      call = client.SubscribeSupply(ch)
+      call = sxServClient.SubscribeSupply(ch)
     } else {
-      call = client.SubscribeDemand(ch)
+      call = sxServClient.SubscribeDemand(ch)
     }
 
     call.on('data', function (supply) {
@@ -215,7 +215,7 @@ module.exports = class Sxutil {
     })
   }
 
-  notify(client, node_id, channel, notifyType, sendData) {
+  notify(sxServClient, node_id, channel, notifyType, sendData) {
     let notifData
     let buffer
 
@@ -264,7 +264,7 @@ module.exports = class Sxutil {
     console.log('===========::', sp)
 
     if (notifyType == 'supply') {
-      client.NotifySupply(sp, (err, resp) => {
+      sxServClient.NotifySupply(sp, (err, resp) => {
         if (!err) {
           console.log('NotifySupply Sent OK', resp)
         } else {
@@ -272,7 +272,7 @@ module.exports = class Sxutil {
         }
       })
     } else {
-      client.NotifyDemand(sp, (err, resp) => {
+      sxServClient.NotifyDemand(sp, (err, resp) => {
         if (!err) {
           console.log('NotifyDemand Sent OK', resp)
         } else {
