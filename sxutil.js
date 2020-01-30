@@ -375,20 +375,16 @@ module.exports = class Sxutil {
       if (type == 'supply') {
         sxServClient.CloseSupplyChannel(ch, (err, resp) => {
           if (err) {
-            console.log('CloseSupplyChannel Erro', err)
             reject(err)
           } else {
-            console.log('CloseSupplyChannel', resp)
             resolve(resp)
           }
         })
       } else {
         sxServClient.CloseDemandChannel(ch, (err, resp) => {
           if (err) {
-            console.log('CloseDemandChannel Erro', err)
             reject(err)
           } else {
-            console.log('CloseDemandChannel', resp)
             resolve(resp)
           }
         })
