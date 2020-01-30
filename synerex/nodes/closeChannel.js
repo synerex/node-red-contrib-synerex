@@ -12,7 +12,7 @@ module.exports = function (RED) {
     const context = this.context().global
     // get subscribe info
     const protcol = config.protcol
-    const nottype = config.nottype
+    const ctype = config.ctype
     const channel = util.getChannel(protcol)
 
     // Get credental
@@ -40,47 +40,61 @@ module.exports = function (RED) {
     node.on('input', function (msg) {
       // get from global
       console.log('payload :: ', msg.payload)
-      // var nodeResp = context.get('nodeResp')
-      // var sxClient = context.get('sxServerClient')
+      var nodeResp = context.get('nodeResp')
+      var sxClient = context.get('sxServerClient')
 
-      // if (nodeResp && sxClient) {
-      //   console.log('has context!!! ============')
-      //   util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
-      //   Keepalive.startKeepAlive(nodesvClient, nodeResp)
-      //   return
-      // }
+      if (nodeResp && sxClient) {
+        // util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
+        util.closeChannel(sxClient, nodeResp.node_id, channel, ctype).then(
+          function (data) {
+            console.log('closeChannel SUCESS', data)
+          },
+          function (err) {
+            console.log('closeChannel ERROR', err)
+          }
+        )
+        Keepalive.startKeepAlive(nodesvClient, nodeResp)
+        return
+      }
 
-      // node.status({ fill: 'green', shape: 'dot', text: 'request...' })
-      // // connecting server
-      // nodesvClient.RegisterNode(
-      //   {
-      //     node_name: this.login.hostname,
-      //     node_type: NodeType.values.PROVIDER,
-      //     channelTypes: [channel]
-      //   },
-      //   (err, resp) => {
-      //     if (!err) {
-      //       node.status({ fill: 'green', shape: 'dot', text: 'success' })
-      //       console.log('NodeServer connect success!')
-      //       console.log(resp)
-      //       console.log('Node ID is ', resp.node_id)
-      //       console.log('Server Info is ', resp.server_info)
-      //       console.log('KeepAlive is ', resp.keepalive_duration)
+      node.status({ fill: 'green', shape: 'dot', text: 'request...' })
+      // connecting server
+      nodesvClient.RegisterNode(
+        {
+          node_name: this.login.hostname,
+          node_type: NodeType.values.PROVIDER,
+          channelTypes: [channel]
+        },
+        (err, resp) => {
+          if (!err) {
+            node.status({ fill: 'green', shape: 'dot', text: 'success' })
+            // console.log('NodeServer connect success!')
+            // console.log(resp)
+            // console.log('Node ID is ', resp.node_id)
+            // console.log('Server Info is ', resp.server_info)
+            // console.log('KeepAlive is ', resp.keepalive_duration)
 
-      //       const client = util.synerexServerClient(resp)
-      //       // set context
-      //       context.set('nodeResp', resp)
-      //       context.set('sxServerClient', client)
+            const client = util.synerexServerClient(resp)
+            // set context
+            context.set('nodeResp', resp)
+            context.set('sxServerClient', client)
 
-      //       util.notify(client, resp.node_id, channel, nottype, msg.payload)
-      //       Keepalive.startKeepAlive(nodesvClient, resp)
-      //     } else {
-      //       node.status({ fill: 'red', shape: 'dot', text: 'error' })
-      //       console.log('Error connecting NodeServ.')
-      //       console.log(err)
-      //     }
-      //   }
-      // )
+            util.closeChannel(client, resp.node_id, channel, ctype).then(
+              function (data) {
+                console.log('closeChannel SUCESS', data)
+              },
+              function (err) {
+                console.log('closeChannel ERROR', err)
+              }
+            )
+            Keepalive.startKeepAlive(nodesvClient, resp)
+          } else {
+            node.status({ fill: 'red', shape: 'dot', text: 'error' })
+            console.log('Error connecting NodeServ.')
+            console.log(err)
+          }
+        }
+      )
     })
     node.on('close', function () {
       let nodeResp = context.get('nodeResp')
