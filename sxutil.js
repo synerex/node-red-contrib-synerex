@@ -77,21 +77,6 @@ module.exports = class Sxutil {
     this.CHANNEL = CHANNEL
   }
 
-  connectSynerexServer(resp) {
-    console.log('Connecting synerex Server ', resp.server_info)
-    const sClient = new this.synerexApi.Synerex(
-      resp.server_info,
-      grpc.credentials.createInsecure()
-    )
-
-    // send fleet data
-    this.sendNotifySupply(sClient, resp.node_id)
-
-    console.log('Subscribe RIDE_SHARE Channel')
-    // subscribe
-    this.subscribeDemand(sClient, resp.node_id)
-  }
-
   /*
    *  Client
    */
@@ -206,10 +191,14 @@ module.exports = class Sxutil {
       console.log('==================')
       callback(null, decoded)
     })
+    call.on('error', function (e) {
+      console.log('subscribe Stream Error', e)
+      // Error! you should recconect to synerex server
+    })
+
     call.on('status', function (st) {
       console.log('Subscribe Status', st)
     })
-
     call.on('end', function () {
       console.log('Subscribe Done!')
     })
