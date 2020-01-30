@@ -361,4 +361,38 @@ module.exports = class Sxutil {
       }
     })
   }
+
+  // channel ... ex) fleet = 1,
+  // type ... supply/demand
+  closeChannel(sxServClient, node_id, channel, type) {
+    return new Promise((resolve, reject) => {
+      const ch = {
+        client_id: node_id,
+        channel_type: channel,
+        arg_json: 'Test...'
+      }
+
+      if (type == 'supply') {
+        sxServClient.CloseSupplyChannel(ch, (err, resp) => {
+          if (err) {
+            console.log('CloseSupplyChannel Erro', err)
+            reject(err)
+          } else {
+            console.log('CloseSupplyChannel', resp)
+            resolve(resp)
+          }
+        })
+      } else {
+        sxServClient.CloseDemandChannel(ch, (err, resp) => {
+          if (err) {
+            console.log('CloseDemandChannel Erro', err)
+            reject(err)
+          } else {
+            console.log('CloseDemandChannel', resp)
+            resolve(resp)
+          }
+        })
+      }
+    })
+  }
 }
