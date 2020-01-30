@@ -39,7 +39,6 @@ module.exports = function (RED) {
     // Input Action
     node.on('input', function (msg) {
       // get from global
-      console.log('payload :: ', msg.payload)
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
 
@@ -48,9 +47,11 @@ module.exports = function (RED) {
         util.closeChannel(sxClient, nodeResp.node_id, channel, ctype).then(
           function (data) {
             console.log('closeChannel SUCESS', data)
+            node.send({ payload: data })
           },
           function (err) {
             console.log('closeChannel ERROR', err)
+            node.send({ payload: err })
           }
         )
         Keepalive.startKeepAlive(nodesvClient, nodeResp)
@@ -68,12 +69,6 @@ module.exports = function (RED) {
         (err, resp) => {
           if (!err) {
             node.status({ fill: 'green', shape: 'dot', text: 'success' })
-            // console.log('NodeServer connect success!')
-            // console.log(resp)
-            // console.log('Node ID is ', resp.node_id)
-            // console.log('Server Info is ', resp.server_info)
-            // console.log('KeepAlive is ', resp.keepalive_duration)
-
             const client = util.synerexServerClient(resp)
             // set context
             context.set('nodeResp', resp)
@@ -82,9 +77,17 @@ module.exports = function (RED) {
             util.closeChannel(client, resp.node_id, channel, ctype).then(
               function (data) {
                 console.log('closeChannel SUCESS', data)
+                node.status({
+                  fill: 'green',
+                  shape: 'dot',
+                  text: 'error'
+                })
+                node.send({ payload: data })
               },
               function (err) {
                 console.log('closeChannel ERROR', err)
+                node.status({ fill: 'error', shape: 'dot', text: 'error' })
+                node.send({ payload: err })
               }
             )
             Keepalive.startKeepAlive(nodesvClient, resp)
