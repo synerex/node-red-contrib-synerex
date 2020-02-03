@@ -81,6 +81,10 @@ module.exports = function (RED) {
             }
           } else {
             console.log('Error connecting NodeServ.')
+            // remove context
+            context.set('nodeResp', null)
+            context.set('sxServerClient', null)
+
             node.status({
               fill: 'red',
               shape: 'dot',
@@ -100,6 +104,10 @@ module.exports = function (RED) {
     function subscribe(client, node_id) {
       util.subscribe(client, node_id, channel, subtype, function (err, success) {
         if (err) {
+          // remove context
+          context.set('nodeResp', null)
+          context.set('sxServerClient', null)
+
           switch (err.code) {
             case 2:
             case 14:
@@ -144,9 +152,8 @@ module.exports = function (RED) {
         }
       )
       node.status({})
-      context.set('nodeResp', undefined)
-      context.set('sxServerClient', undefined)
-      Keepalive.stopKeepAlive()
+      context.set('nodeResp', null)
+      context.set('sxServerClient', null)
     })
   }
   RED.nodes.registerType('Subscribe', SubscribeNode)

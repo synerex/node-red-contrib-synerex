@@ -1,9 +1,8 @@
 class Keepalive {
   startKeepAlive(nClient, resp) {
-    console.log('startKeepAlive')
-    console.log('resp.secret', resp.secret)
+    this.initKeepAlive()
     if (!this.keepaliveIterval) {
-      console.log('DO keepalive')
+      console.log('startKeepAlive')
       global.update = 0
       this.keepaliveIterval = setInterval(() => {
         var updt = {
@@ -24,10 +23,10 @@ class Keepalive {
     }
   }
 
-  stopKeepAlive() {
-    console.log('stop keepalive')
+  initKeepAlive() {
+    console.log('init keepalive')
     clearInterval(this.keepaliveIterval)
-    this.keepaliveIterval = undefined
+    this.keepaliveIterval = null
   }
 }
 
