@@ -69,15 +69,13 @@ module.exports = function (RED) {
 
             if (nodeResp && sxClient) {
               // if already have resp and client
-              subscribe(sxClient, nodeResp.node_id)
-              Keepalive.startKeepAlive(nodesvClient, nodeResp)
+              subscribe(sxClient, nodeResp)
             } else {
               // set context
               context.set('nodeResp', resp)
               context.set('sxServerClient', client)
               // // subscribe
-              subscribe(client, resp.node_id)
-              Keepalive.startKeepAlive(nodesvClient, resp)
+              subscribe(client, resp)
             }
           } else {
             console.log('Error connecting NodeServ.')
@@ -85,24 +83,18 @@ module.exports = function (RED) {
             context.set('nodeResp', null)
             context.set('sxServerClient', null)
 
-            node.status({
-              fill: 'red',
-              shape: 'dot',
-              text: 'Node server error'
-            })
-            console.log(err)
-            setTimeout(function () {
-              console.log('try reconnect ....')
-              connectToNode()
-            }, 5000)
+            recconect()
           }
         }
       )
     }
 
     // Subscribe Logic
-    function subscribe(client, node_id) {
-      util.subscribe(client, node_id, channel, subtype, function (err, success) {
+    function subscribe(client, resp) {
+      util.subscribe(client, resp.node_id, channel, subtype, function (
+        err,
+        success
+      ) {
         if (err) {
           // remove context
           context.set('nodeResp', null)
@@ -111,22 +103,7 @@ module.exports = function (RED) {
           switch (err.code) {
             case 2:
             case 14:
-              node.status({
-                fill: 'red',
-                shape: 'dot',
-                text: 'Synerex server error'
-              })
-              setTimeout(function () {
-                node.status({
-                  fill: 'red',
-                  shape: 'dot',
-                  text: 'try recconect'
-                })
-              }, 1000)
-              // reconnect
-              setTimeout(function () {
-                connectToNode()
-              }, 5000)
+              recconect()
               break
             default:
               console.log('subscribe error!', err)
@@ -138,6 +115,37 @@ module.exports = function (RED) {
           node.send({ payload: util.subscribeFormatter(channel, success) })
         }
       })
+
+      Keepalive.startKeepAlive(nodesvClient, resp, function (err) {
+        switch (err.code) {
+          case 14:
+            recconect()
+            break
+
+          default:
+            console.log('keepalive Error!', err)
+            break
+        }
+      })
+    }
+
+    function recconect() {
+      node.status({
+        fill: 'red',
+        shape: 'dot',
+        text: 'Node/Synerex server error'
+      })
+      setTimeout(function () {
+        node.status({
+          fill: 'red',
+          shape: 'dot',
+          text: 'try recconect'
+        })
+      }, 1000)
+      // reconnect
+      setTimeout(function () {
+        connectToNode()
+      }, 5000)
     }
 
     node.on('close', function () {
