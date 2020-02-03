@@ -81,8 +81,16 @@ module.exports = function (RED) {
             }
           } else {
             console.log('Error connecting NodeServ.')
-            node.status({ fill: 'red', shape: 'dot', text: 'error NodeServ' })
+            node.status({
+              fill: 'red',
+              shape: 'dot',
+              text: 'Node server error'
+            })
             console.log(err)
+            setTimeout(function () {
+              console.log('try reconnect ....')
+              connectToNode()
+            }, 5000)
           }
         }
       )
@@ -90,19 +98,25 @@ module.exports = function (RED) {
 
     // Subscribe Logic
     function subscribe(client, node_id) {
-      console.log('come subscribe ================== ')
       util.subscribe(client, node_id, channel, subtype, function (err, success) {
         if (err) {
           switch (err.code) {
             case 2:
             case 14:
-              console.log('Stream removed ===========')
-              console.log('Try recconect...')
-              node.status({ fill: 'red', shape: 'dot', text: 'try recconect' })
+              node.status({
+                fill: 'red',
+                shape: 'dot',
+                text: 'Synerex server error'
+              })
+              setTimeout(function () {
+                node.status({
+                  fill: 'red',
+                  shape: 'dot',
+                  text: 'try recconect'
+                })
+              }, 1000)
               // reconnect
               setTimeout(function () {
-                console.log('try subscribr reconnect ....')
-                // subscribe(client, node_id)
                 connectToNode()
               }, 5000)
               break
