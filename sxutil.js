@@ -187,20 +187,17 @@ module.exports = class Sxutil {
           break
       }
       decoded.timestamp = supply.ts
-      console.log(decoded)
-      console.log('==================')
       callback(null, decoded)
     })
     call.on('error', function (e) {
-      console.log('subscribe Stream Error', e)
-      // Error! you should recconect to synerex server
+      callback(e, null)
     })
 
     call.on('status', function (st) {
       console.log('Subscribe Status', st)
     })
     call.on('end', function () {
-      console.log('Subscribe Done!')
+      console.log('Subscribe end!')
     })
   }
 
