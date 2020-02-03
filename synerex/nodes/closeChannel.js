@@ -105,7 +105,7 @@ module.exports = function (RED) {
       node.status({})
       context.set('nodeResp', undefined)
       context.set('sxServerClient', undefined)
-      Keepalive.stopKeepAlive()
+      // Keepalive.stopKeepAlive()
     })
   }
   RED.nodes.registerType('CloseChannel', CloseChannelNode)
