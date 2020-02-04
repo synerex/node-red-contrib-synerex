@@ -201,7 +201,7 @@ module.exports = class Sxutil {
     })
   }
 
-  notify(sxServClient, node_id, channel, notifyType, sendData) {
+  notifyA(sxServClient, node_id, channel, notifyType, sendData) {
     let notifData
     let buffer
 
@@ -266,6 +266,79 @@ module.exports = class Sxutil {
         }
       })
     }
+  }
+
+  notify(sxServClient, node_id, channel, notifyType, sendData) {
+    return new Promise((resolve, reject) => {
+      let notifData
+      let buffer
+
+      switch (channel) {
+        case CHANNEL.RIDE_SHARE:
+          notifData = Fleet.create(sendData)
+          buffer = Fleet.encode(notifData).finish()
+          break
+
+        case CHANNEL.FLUENTD_SERVICE:
+          notifData = Fluentd.create(sendData)
+          buffer = Fluentd.encode(notifData).finish()
+          break
+
+        case CHANNEL.PT_SERVICE:
+          notifData = Ptransit.create(sendData)
+          buffer = Ptransit.encode(notifData).finish()
+          break
+
+        case CHANNEL.PEOPLE_AGENT_SVC:
+          notifData = Pagent.create(sendData)
+          buffer = Pagent.encode(notifData).finish()
+          break
+
+        case CHANNEL.GEOGRAPHIC_SVC:
+          notifData = Geography.create(sendData)
+          buffer = Geography.encode(notifData).finish()
+          break
+
+        default:
+          buffer = undefined
+          break
+      }
+
+      var flakeIdGen = new FlakeId({ id: node_id })
+      var spid = intformat(flakeIdGen.next(), 'dec')
+
+      var sp = {
+        id: spid,
+        sendr_id: node_id,
+        channel_type: channel,
+        supply_name: 'RS Notify',
+        arg_json: '',
+        cdata: { entity: buffer }
+      }
+      console.log('===========::', sp)
+
+      if (notifyType == 'supply') {
+        sxServClient.NotifySupply(sp, (err, resp) => {
+          if (!err) {
+            console.log('NotifySupply Sent OK', resp)
+            resolve(resp)
+          } else {
+            console.log('NotifySupply error', err)
+            reject(err)
+          }
+        })
+      } else {
+        sxServClient.NotifyDemand(sp, (err, resp) => {
+          if (!err) {
+            console.log('NotifyDemand Sent OK', resp)
+            resolve(resp)
+          } else {
+            console.log('NotifyDemand error', err)
+            reject(err)
+          }
+        })
+      }
+    })
   }
 
   subscribeFormatter(channel, successData) {
