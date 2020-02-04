@@ -44,8 +44,24 @@ module.exports = function (RED) {
 
       if (nodeResp && sxClient) {
         console.log('has context!!! ============')
-        util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
-        Keepalive.startKeepAlive(nodesvClient, nodeResp)
+        util
+          .notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
+          .then(
+            function (data) {
+              node.status({ fill: 'green', shape: 'dot', text: 'sended' })
+              setTimeout(function () {
+                node.status({})
+              }, 1000)
+            },
+            function (err) {
+              console.log('reject', err)
+              node.status({ fill: 'red', shape: 'dot', text: 'error' })
+              setTimeout(function () {
+                node.status({})
+              }, 1000)
+            }
+          )
+        // Keepalive.startKeepAlive(nodesvClient, nodeResp)
         return
       }
 
@@ -71,8 +87,25 @@ module.exports = function (RED) {
             context.set('nodeResp', resp)
             context.set('sxServerClient', client)
 
-            util.notify(client, resp.node_id, channel, nottype, msg.payload)
-            Keepalive.startKeepAlive(nodesvClient, resp)
+            util
+              .notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
+              .then(
+                function (data) {
+                  node.status({ fill: 'green', shape: 'dot', text: 'sended' })
+                  setTimeout(function () {
+                    node.status({})
+                  }, 1000)
+                },
+                function (err) {
+                  console.log('reject', err)
+                  node.status({ fill: 'red', shape: 'dot', text: 'error' })
+                  setTimeout(function () {
+                    node.status({})
+                  }, 1000)
+                }
+              )
+
+            // Keepalive.startKeepAlive(nodesvClient, resp)
           } else {
             node.status({ fill: 'red', shape: 'dot', text: 'error' })
             console.log('Error connecting NodeServ.')
