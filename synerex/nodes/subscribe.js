@@ -39,6 +39,7 @@ module.exports = function (RED) {
     // connecting server
     connectToNode()
 
+    // connect Node server
     function connectToNode() {
       node.status({ fill: 'green', shape: 'dot', text: 'request...' })
       nodesvClient.RegisterNode(
@@ -83,7 +84,7 @@ module.exports = function (RED) {
             context.set('nodeResp', null)
             context.set('sxServerClient', null)
 
-            recconect()
+            recconect('Synerex')
           }
         }
       )
@@ -103,7 +104,7 @@ module.exports = function (RED) {
           switch (err.code) {
             case 2:
             case 14:
-              recconect()
+              recconect('Synerex')
               break
             default:
               console.log('subscribe error!', err)
@@ -119,7 +120,7 @@ module.exports = function (RED) {
       Keepalive.startKeepAlive(nodesvClient, resp, function (err) {
         switch (err.code) {
           case 14:
-            recconect()
+            recconect('Node')
             break
 
           default:
@@ -129,11 +130,11 @@ module.exports = function (RED) {
       })
     }
 
-    function recconect() {
+    function recconect(serverName) {
       node.status({
         fill: 'red',
         shape: 'dot',
-        text: 'Node/Synerex server error'
+        text: serverName + ' server error'
       })
       setTimeout(function () {
         node.status({
