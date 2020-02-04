@@ -39,7 +39,6 @@ module.exports = function (RED) {
     // Input Action
     node.on('input', function (msg) {
       // get from global
-      console.log('payload :: ', msg.payload)
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
 
