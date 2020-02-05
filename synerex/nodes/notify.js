@@ -123,5 +123,5 @@ module.exports = function (RED) {
       // Keepalive.stopKeepAlive()
     })
   }
-  RED.nodes.registerType('Notify', NotifyNode)
+  RED.nodes.registerType('SynerexNotify', NotifyNode)
 }

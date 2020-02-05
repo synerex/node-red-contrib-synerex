@@ -108,5 +108,5 @@ module.exports = function (RED) {
       // Keepalive.stopKeepAlive()
     })
   }
-  RED.nodes.registerType('CloseChannel', CloseChannelNode)
+  RED.nodes.registerType('SynerexCloseChannel', CloseChannelNode)
 }
