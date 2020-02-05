@@ -35,9 +35,9 @@
   "node-red": {
     "nodes": {
       "sxutil": "./synerex/synerex.js",
-      "subscribe": "./synerex/nodes/subscribe.js",
-      "notify": "./synerex/nodes/notify.js",
-      "closeChannel": "./synerex/nodes/closeChannel.js"
+      "sxsubscribe": "./synerex/nodes/subscribe.js",
+      "sxnotify": "./synerex/nodes/notify.js",
+      "sxcloseChannel": "./synerex/nodes/closeChannel.js"
     }
   },
   "author": "github_id:kuetsuhara",
