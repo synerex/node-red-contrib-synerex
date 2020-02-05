@@ -13,7 +13,7 @@ module.exports = function (RED) {
     // get subscribe info
     const protcol = config.protcol
     const stype = config.stype
-    // const channel = util.getChannel(protcol)
+    const channel = util.getChannel(protcol)
 
     // Get credental
     this.login = RED.nodes.getNode(config.login) // Retrieve the config node
@@ -43,7 +43,7 @@ module.exports = function (RED) {
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
       if (nodeResp && sxClient) {
-        util.select(sxClient, stype)
+        util.select(sxClient, nodeResp, channel, stype)
 
         // util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
         // util.closeChannel(sxClient, nodeResp.node_id, channel, ctype).then(

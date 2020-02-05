@@ -342,6 +342,7 @@ module.exports = class Sxutil {
   }
 
   subscribeFormatter(channel, successData) {
+    console.log('successData', successData)
     let result
     switch (channel) {
       case this.CHANNEL.RIDE_SHARE:
@@ -454,13 +455,13 @@ module.exports = class Sxutil {
   /*
   synerex select api
   */
-  select(sxServClient, type) {
+  select(sxServClient, nodeResp, channel, type) {
     return new Promise((resolve, reject) => {
       const target = {
         id: 1,
-        sender_id: 1,
-        target_id: 1,
-        channel_type: 1
+        sender_id: nodeResp.node_id,
+        target_id: 0,
+        channel_type: channel
       }
 
       switch (type) {
