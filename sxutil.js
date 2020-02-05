@@ -450,4 +450,46 @@ module.exports = class Sxutil {
       }
     })
   }
+
+  /*
+  synerex select api
+  */
+  select(sxServClient, type) {
+    return new Promise((resolve, reject) => {
+      const target = {
+        id: 1,
+        sender_id: 1,
+        target_id: 1,
+        channel_type: 1
+      }
+
+      switch (type) {
+        case 'supply':
+          sxServClient.SelectSupply(target, (err, resp) => {
+            if (err) {
+              console.log('error', err)
+              reject(err)
+            } else {
+              console.log('resp', resp)
+              resolve(resp)
+            }
+          })
+          break
+
+        case 'demand':
+          sxServClient.SelectDemand(target, (err, resp) => {
+            if (err) {
+              console.log(err)
+              reject(err)
+            } else {
+              console.log(resp)
+              resolve(resp)
+            }
+          })
+          break
+        default:
+          break
+      }
+    })
+  }
 }

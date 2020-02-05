@@ -37,6 +37,7 @@
       "sxutil": "./synerex/synerex.js",
       "subscribe": "./synerex/nodes/subscribe.js",
       "notify": "./synerex/nodes/notify.js",
+      "select": "./synerex/nodes/select.js",
       "closeChannel": "./synerex/nodes/closeChannel.js"
     }
   },
