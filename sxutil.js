@@ -505,17 +505,17 @@ module.exports = class Sxutil {
       if (notifyType == 'supply') {
         sxServClient.ProposeSupply(sp, (err, resp) => {
           if (!err) {
-            console.log('NotifySupply Sent OK', resp)
+            console.log('ProposeSupply Sent OK', resp)
             resolve(resp)
           } else {
-            console.log('NotifySupply error', err)
+            console.log('ProposeSupply error', err)
             reject(err)
           }
         })
       } else {
         sxServClient.ProposeDemand(sp, (err, resp) => {
           if (!err) {
-            console.log('NotifyDemand Sent OK', resp)
+            console.log('ProposeDemand Sent OK', resp)
             resolve(resp)
           } else {
             console.log('NotifyDemand error', err)

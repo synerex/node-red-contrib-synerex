@@ -43,7 +43,16 @@ module.exports = function (RED) {
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
       if (nodeResp && sxClient) {
-        util.propose(sxClient)
+        util
+          .propose(sxClient, nodeResp.node_id, channel, stype, msg.payload)
+          .then(
+            function (data) {
+              console.log(data)
+            },
+            function (err) {
+              console.log(err)
+            }
+          )
 
         // util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
         // util.closeChannel(sxClient, nodeResp.node_id, channel, ctype).then(
