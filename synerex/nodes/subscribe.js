@@ -165,5 +165,5 @@ module.exports = function (RED) {
       context.set('sxServerClient', null)
     })
   }
-  RED.nodes.registerType('Subscribe', SubscribeNode)
+  RED.nodes.registerType('SynerexSubscribe', SubscribeNode)
 }
