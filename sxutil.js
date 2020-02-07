@@ -309,7 +309,7 @@ module.exports = class Sxutil {
 
       var sp = {
         id: spid,
-        sendr_id: node_id,
+        sender_id: node_id,
         channel_type: channel,
         supply_name: 'RS Notify',
         arg_json: '',
@@ -342,6 +342,7 @@ module.exports = class Sxutil {
   }
 
   subscribeFormatter(channel, successData) {
+    console.log('successData', successData)
     let result
     switch (channel) {
       case this.CHANNEL.RIDE_SHARE:
@@ -447,6 +448,120 @@ module.exports = class Sxutil {
             resolve(resp)
           }
         })
+      }
+    })
+  }
+
+  propose(sxServClient, node_id, channel, notifyType, sendData) {
+    return new Promise((resolve, reject) => {
+      let notifData
+      let buffer
+
+      switch (channel) {
+        case CHANNEL.RIDE_SHARE:
+          notifData = Fleet.create(sendData)
+          buffer = Fleet.encode(notifData).finish()
+          break
+
+        case CHANNEL.FLUENTD_SERVICE:
+          notifData = Fluentd.create(sendData)
+          buffer = Fluentd.encode(notifData).finish()
+          break
+
+        case CHANNEL.PT_SERVICE:
+          notifData = Ptransit.create(sendData)
+          buffer = Ptransit.encode(notifData).finish()
+          break
+
+        case CHANNEL.PEOPLE_AGENT_SVC:
+          notifData = Pagent.create(sendData)
+          buffer = Pagent.encode(notifData).finish()
+          break
+
+        case CHANNEL.GEOGRAPHIC_SVC:
+          notifData = Geography.create(sendData)
+          buffer = Geography.encode(notifData).finish()
+          break
+
+        default:
+          buffer = undefined
+          break
+      }
+
+      var flakeIdGen = new FlakeId({ id: node_id })
+      var spid = intformat(flakeIdGen.next(), 'dec')
+
+      var sp = {
+        id: spid,
+        sender_id: node_id,
+        channel_type: channel,
+        supply_name: 'RS Notify',
+        arg_json: '',
+        cdata: { entity: buffer }
+      }
+
+      if (notifyType == 'supply') {
+        sxServClient.ProposeSupply(sp, (err, resp) => {
+          if (!err) {
+            console.log('ProposeSupply Sent OK', resp)
+            resolve(resp)
+          } else {
+            console.log('ProposeSupply error', err)
+            reject(err)
+          }
+        })
+      } else {
+        sxServClient.ProposeDemand(sp, (err, resp) => {
+          if (!err) {
+            console.log('ProposeDemand Sent OK', resp)
+            resolve(resp)
+          } else {
+            console.log('NotifyDemand error', err)
+            reject(err)
+          }
+        })
+      }
+    })
+  }
+
+  /*
+  synerex select api
+  */
+  select(sxServClient, nodeResp, channel, type) {
+    return new Promise((resolve, reject) => {
+      const target = {
+        id: 1,
+        sender_id: nodeResp.node_id,
+        target_id: 0,
+        channel_type: channel
+      }
+
+      switch (type) {
+        case 'supply':
+          sxServClient.SelectSupply(target, (err, resp) => {
+            if (err) {
+              console.log('error', err)
+              reject(err)
+            } else {
+              console.log('resp', resp)
+              resolve(resp)
+            }
+          })
+          break
+
+        case 'demand':
+          sxServClient.SelectDemand(target, (err, resp) => {
+            if (err) {
+              console.log(err)
+              reject(err)
+            } else {
+              console.log(resp)
+              resolve(resp)
+            }
+          })
+          break
+        default:
+          break
       }
     })
   }
