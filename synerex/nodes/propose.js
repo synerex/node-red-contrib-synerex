@@ -5,14 +5,14 @@ const Protobuf = require('protobufjs')
 
 module.exports = function (RED) {
   'use strict'
-  function SelectNode(config) {
+  function ProposeNode(config) {
     RED.nodes.createNode(this, config)
     var node = this
     var util = new Sxutil()
     const context = this.context().global
     // get subscribe info
     const protcol = config.protcol
-    const stype = config.stype
+    const stype = config.ptype
     const channel = util.getChannel(protcol)
 
     // Get credental
@@ -38,12 +38,12 @@ module.exports = function (RED) {
 
     // Input Action
     node.on('input', function (msg) {
-      console.log('select input')
+      console.log('Propose input')
       // get from global
       var nodeResp = context.get('nodeResp')
       var sxClient = context.get('sxServerClient')
       if (nodeResp && sxClient) {
-        util.select(sxClient, nodeResp, channel, stype)
+        util.propose(sxClient)
 
         // util.notify(sxClient, nodeResp.node_id, channel, nottype, msg.payload)
         // util.closeChannel(sxClient, nodeResp.node_id, channel, ctype).then(
@@ -108,5 +108,5 @@ module.exports = function (RED) {
       // Keepalive.stopKeepAlive()
     })
   }
-  RED.nodes.registerType('SynerexSelect', SelectNode)
+  RED.nodes.registerType('SynerexPropose', ProposeNode)
 }
