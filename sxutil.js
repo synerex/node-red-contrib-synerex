@@ -309,7 +309,7 @@ module.exports = class Sxutil {
 
       var sp = {
         id: spid,
-        sendr_id: node_id,
+        sender_id: node_id,
         channel_type: channel,
         supply_name: 'RS Notify',
         arg_json: '',
@@ -454,8 +454,6 @@ module.exports = class Sxutil {
 
   propose(sxServClient, node_id, channel, notifyType, sendData) {
     return new Promise((resolve, reject) => {
-      console.log('PROPOSE!!!')
-
       let notifData
       let buffer
 
@@ -495,7 +493,7 @@ module.exports = class Sxutil {
 
       var sp = {
         id: spid,
-        sendr_id: node_id,
+        sender_id: node_id,
         channel_type: channel,
         supply_name: 'RS Notify',
         arg_json: '',
