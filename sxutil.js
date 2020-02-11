@@ -270,39 +270,7 @@ module.exports = class Sxutil {
 
   notify(sxServClient, node_id, channel, notifyType, sendData) {
     return new Promise((resolve, reject) => {
-      let notifData
-      let buffer
-
-      switch (channel) {
-        case CHANNEL.RIDE_SHARE:
-          notifData = Fleet.create(sendData)
-          buffer = Fleet.encode(notifData).finish()
-          break
-
-        case CHANNEL.FLUENTD_SERVICE:
-          notifData = Fluentd.create(sendData)
-          buffer = Fluentd.encode(notifData).finish()
-          break
-
-        case CHANNEL.PT_SERVICE:
-          notifData = Ptransit.create(sendData)
-          buffer = Ptransit.encode(notifData).finish()
-          break
-
-        case CHANNEL.PEOPLE_AGENT_SVC:
-          notifData = Pagent.create(sendData)
-          buffer = Pagent.encode(notifData).finish()
-          break
-
-        case CHANNEL.GEOGRAPHIC_SVC:
-          notifData = Geography.create(sendData)
-          buffer = Geography.encode(notifData).finish()
-          break
-
-        default:
-          buffer = undefined
-          break
-      }
+      let buffer = this.makeBuffer(channel, sendData)
 
       var flakeIdGen = new FlakeId({ id: node_id })
       var spid = intformat(flakeIdGen.next(), 'dec')
@@ -454,39 +422,7 @@ module.exports = class Sxutil {
 
   propose(sxServClient, node_id, channel, notifyType, sendData) {
     return new Promise((resolve, reject) => {
-      let notifData
-      let buffer
-
-      switch (channel) {
-        case CHANNEL.RIDE_SHARE:
-          notifData = Fleet.create(sendData)
-          buffer = Fleet.encode(notifData).finish()
-          break
-
-        case CHANNEL.FLUENTD_SERVICE:
-          notifData = Fluentd.create(sendData)
-          buffer = Fluentd.encode(notifData).finish()
-          break
-
-        case CHANNEL.PT_SERVICE:
-          notifData = Ptransit.create(sendData)
-          buffer = Ptransit.encode(notifData).finish()
-          break
-
-        case CHANNEL.PEOPLE_AGENT_SVC:
-          notifData = Pagent.create(sendData)
-          buffer = Pagent.encode(notifData).finish()
-          break
-
-        case CHANNEL.GEOGRAPHIC_SVC:
-          notifData = Geography.create(sendData)
-          buffer = Geography.encode(notifData).finish()
-          break
-
-        default:
-          buffer = undefined
-          break
-      }
+      let buffer = this.makeBuffer(channel, sendData)
 
       var flakeIdGen = new FlakeId({ id: node_id })
       var spid = intformat(flakeIdGen.next(), 'dec')
@@ -564,5 +500,42 @@ module.exports = class Sxutil {
           break
       }
     })
+  }
+
+  makeBuffer(channel, sendData) {
+    let notifData
+    let buffer
+
+    switch (channel) {
+      case CHANNEL.RIDE_SHARE:
+        notifData = Fleet.create(sendData)
+        buffer = Fleet.encode(notifData).finish()
+        break
+
+      case CHANNEL.FLUENTD_SERVICE:
+        notifData = Fluentd.create(sendData)
+        buffer = Fluentd.encode(notifData).finish()
+        break
+
+      case CHANNEL.PT_SERVICE:
+        notifData = Ptransit.create(sendData)
+        buffer = Ptransit.encode(notifData).finish()
+        break
+
+      case CHANNEL.PEOPLE_AGENT_SVC:
+        notifData = Pagent.create(sendData)
+        buffer = Pagent.encode(notifData).finish()
+        break
+
+      case CHANNEL.GEOGRAPHIC_SVC:
+        notifData = Geography.create(sendData)
+        buffer = Geography.encode(notifData).finish()
+        break
+
+      default:
+        buffer = undefined
+        break
+    }
+    return buffer
   }
 }
