@@ -158,8 +158,7 @@ module.exports = class Sxutil {
     }
 
     call.on('data', function (supply) {
-      console.log('==================')
-      console.log('receive Supply:', supply)
+      console.log('receive data:', supply)
       var decoded
       switch (channel) {
         case CHANNEL.RIDE_SHARE:
@@ -186,6 +185,24 @@ module.exports = class Sxutil {
           decoded = undefined
           break
       }
+
+      // add ids
+      if (supply.id) {
+        decoded.id = supply.id
+      }
+      if (supply.sender_id) {
+        decoded.sender_id = supply.sender_id
+      }
+      if (supply.target_id) {
+        decoded.target_id = supply.target_id
+      }
+      if (supply.mbus_id) {
+        decoded.mbus_id = supply.mbus_id
+      }
+      if (supply.channel_type) {
+        decoded.channel_type = supply.channel_type
+      }
+
       decoded.timestamp = supply.ts
       callback(null, decoded)
     })
@@ -247,7 +264,6 @@ module.exports = class Sxutil {
       arg_json: '',
       cdata: { entity: buffer }
     }
-    console.log('===========::', sp)
 
     if (notifyType == 'supply') {
       sxServClient.NotifySupply(sp, (err, resp) => {
@@ -283,7 +299,6 @@ module.exports = class Sxutil {
         arg_json: '',
         cdata: { entity: buffer }
       }
-      console.log('===========::', sp)
 
       if (notifyType == 'supply') {
         sxServClient.NotifySupply(sp, (err, resp) => {
@@ -315,6 +330,13 @@ module.exports = class Sxutil {
     switch (channel) {
       case this.CHANNEL.RIDE_SHARE:
         result = {
+          id: successData.id,
+          sender_id: successData.sender_id,
+          target_id: successData.target_id,
+          mbus_id: successData.mbus_id,
+          channel_type: successData.channel_type,
+          id: successData.id,
+          id: successData.id,
           coord: {
             lat: successData.coord.lat,
             lon: successData.coord.lon
@@ -327,6 +349,11 @@ module.exports = class Sxutil {
         break
       case this.CHANNEL.FLUENTD_SERVICE:
         result = {
+          id: successData.id,
+          sender_id: successData.sender_id,
+          target_id: successData.target_id,
+          mbus_id: successData.mbus_id,
+          channel_type: successData.channel_type,
           tag: successData.tag,
           time: successData.time,
           record: successData.record,
@@ -335,6 +362,11 @@ module.exports = class Sxutil {
         break
       case this.CHANNEL.PT_SERVICE:
         result = {
+          id: successData.id,
+          sender_id: successData.sender_id,
+          target_id: successData.target_id,
+          mbus_id: successData.mbus_id,
+          channel_type: successData.channel_type,
           coord: {
             lat: successData.lat,
             lon: successData.lon
@@ -348,14 +380,22 @@ module.exports = class Sxutil {
       case this.CHANNEL.PEOPLE_AGENT_SVC:
         result = {
           id: successData.id,
+          sender_id: successData.sender_id,
+          target_id: successData.target_id,
+          mbus_id: successData.mbus_id,
+          channel_type: successData.channel_type,
           point: successData.point
         }
         break
 
       case this.CHANNEL.GEOGRAPHIC_SVC:
         result = {
-          type: successData.type,
           id: successData.id,
+          sender_id: successData.sender_id,
+          target_id: successData.target_id,
+          mbus_id: successData.mbus_id,
+          channel_type: successData.channel_type,
+          type: successData.type,
           label: successData.label,
           data: successData.data,
           options: successData.options,
