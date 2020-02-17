@@ -88,7 +88,7 @@ module.exports = function (RED) {
             context.set('sxServerClient', client)
 
             util
-              .notify(sxClient, resp.node_id, channel, nottype, msg.payload)
+              .notify(client, resp.node_id, channel, nottype, msg.payload)
               .then(
                 function (data) {
                   node.status({ fill: 'green', shape: 'dot', text: 'sended' })
