@@ -7,9 +7,6 @@
 [submodule "synerex_api"]
 	path = synerex_api
 	url = https://github.com/synerex/synerex_api
-[submodule "proto_json"]
-	path = proto_json
-	url = https://github.com/synerex/proto_json.git
 [submodule "proto_people_agent"]
 	path = proto_people_agent
 	url = https://github.com/synerex/proto_people_agent.git
