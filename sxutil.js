@@ -10,8 +10,7 @@ const fluentd_path = __dirname + '/synerex_proto/fluentd/fluentd.proto'
 const geography_path = __dirname + '/synerex_proto/geography/geography.proto'
 const ptransit_path = __dirname + '/synerex_proto/ptransit/ptransit.proto'
 const pagent_path = __dirname + '/proto_people_agent/pagent.proto'
-
-// const json_path = __dirname + '/proto_json/json.proto'
+const json_path = __dirname + '/synerex_proto/json/json.proto'
 
 const nodeApiDefinition = protoLoader.loadSync(nodeapi_path, {
   keepCase: true,
@@ -32,7 +31,6 @@ const synerexApiDefinition = protoLoader.loadSync(api_path, {
 })
 
 const synerexApiProto = grpc.loadPackageDefinition(synerexApiDefinition)
-// const synerexApi = synerexApiProto.api
 
 // Fleet
 const fleetRoot = Protobuf.loadSync(fleet_path)
@@ -50,8 +48,8 @@ const Ptransit = ptransitRoot.lookup('PTService')
 const pagentRoot = Protobuf.loadSync(pagent_path)
 const Pagent = pagentRoot.lookup('PAgent')
 
-// const jsonRoot = Protobuf.loadSync(json_path)
-// const JsonRecord = jsonRoot.lookup('JsonRecord')
+const jsonRoot = Protobuf.loadSync(json_path)
+const JsonRecord = jsonRoot.lookup('JsonRecord')
 
 const CHANNEL = {
   RIDE_SHARE: 1,
@@ -67,7 +65,8 @@ const CHANNEL = {
   PEOPLE_COUNTER_SVC: 11,
   AREA_COUNTER_SVC: 12,
   PEOPLE_AGENT_SVC: 13,
-  GEOGRAPHIC_SVC: 14
+  GEOGRAPHIC_SVC: 14,
+  JSON_DATA_SVC: 15
 }
 
 module.exports = class Sxutil {
@@ -136,6 +135,10 @@ module.exports = class Sxutil {
       case 'geography':
         channel = CHANNEL.GEOGRAPHIC_SVC
         break
+      case 'json':
+        channel = CHANNEL.JSON_DATA_SVC
+        break
+
       default:
         channel = 0
         break
@@ -181,8 +184,12 @@ module.exports = class Sxutil {
           decoded = Geography.decode(supply.cdata.entity)
           break
 
+        case CHANNEL.JSON_DATA_SVC:
+          decoded = JsonRecord.decode(supply.cdata.entity)
+          break
+
         default:
-          decoded = undefined
+          decoded = null
           break
       }
 
@@ -248,8 +255,13 @@ module.exports = class Sxutil {
         buffer = Geography.encode(notifData).finish()
         break
 
+      case CHANNEL.JSON_DATA_SVC:
+        notifData = JsonRecord.create(sendData)
+        buffer = JsonRecord.encode(notifData).finish()
+        break
+
       default:
-        buffer = undefined
+        buffer = null
         break
     }
 
@@ -335,8 +347,6 @@ module.exports = class Sxutil {
           target_id: successData.target_id,
           mbus_id: successData.mbus_id,
           channel_type: successData.channel_type,
-          id: successData.id,
-          id: successData.id,
           coord: {
             lat: successData.coord.lat,
             lon: successData.coord.lon
@@ -400,6 +410,18 @@ module.exports = class Sxutil {
           data: successData.data,
           options: successData.options,
           timestamp: successData.timestamp
+        }
+        break
+
+      case this.CHANNEL.JSON_DATA_SVC:
+        result = {
+          id: successData.id,
+          sender_id: successData.sender_id,
+          target_id: successData.target_id,
+          mbus_id: successData.mbus_id,
+          channel_type: successData.channel_type,
+          type: successData.type,
+          json: successData.json
         }
         break
 
@@ -572,8 +594,13 @@ module.exports = class Sxutil {
         buffer = Geography.encode(notifData).finish()
         break
 
+      case CHANNEL.JSON_DATA_SVC:
+        notifData = JsonRecord.create(sendData)
+        buffer = JsonRecord.encode(notifData).finish()
+        break
+
       default:
-        buffer = undefined
+        buffer = null
         break
     }
     return buffer
