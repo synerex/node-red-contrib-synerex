@@ -189,7 +189,7 @@ module.exports = class Sxutil {
           break
 
         default:
-          decoded = undefined
+          decoded = null
           break
       }
 
@@ -261,7 +261,7 @@ module.exports = class Sxutil {
         break
 
       default:
-        buffer = undefined
+        buffer = null
         break
     }
 
@@ -600,7 +600,7 @@ module.exports = class Sxutil {
         break
 
       default:
-        buffer = undefined
+        buffer = null
         break
     }
     return buffer
